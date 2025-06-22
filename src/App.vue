@@ -14,6 +14,7 @@ import AccountState from "@/components/AccountState.vue";
       <div class="flex gap-8">
         <AccountState :account="'PayPal'" :balance="'215.78'"/>
         <AccountState :account="'mBank'" :balance="'1451.83'"/>
+        <p>test</p>
       </div>
     </div>
   </div>
