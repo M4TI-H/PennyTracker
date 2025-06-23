@@ -6,7 +6,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="max-w-[50%] w-full h-24 sm:h-32 bg-[#E9ECEF] flex flex-col p-4
+  <div class="min-w-28 max-w-[50%] w-full sm:h-32 bg-[#E9ECEF] flex flex-col p-4
     rounded-xl shadow-xl 
     hover:scale-102 hover:cursor-pointer hover:bg-[#DEE2E6]
     transition ease-in-out duration-200">
