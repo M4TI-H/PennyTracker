@@ -15,7 +15,7 @@ const smallW = 640;
       class="size-32 sm:size-72"
     />
     <p class="absolute top-2/5 sm:top-3/7 text-2xl sm:text-5xl text-[#212529] font-semibold">$875</p>
-    <a v-if="screenWidth > smallW" class="text-lg text-[#212529] font-semibold
+    <a href="/savings" v-if="screenWidth > smallW" class="text-lg text-[#212529] font-semibold
       hover:underline hover:cursor-pointer"
     >See more</a>
   </div>

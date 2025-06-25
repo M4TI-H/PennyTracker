@@ -2,7 +2,8 @@
   import { ref, watchEffect } from "vue";
   import Navigation from "@/components/navigation/Navigation.vue";
   import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
-  import AddExpenditure from "@/components/expenses/AddExpenditure.vue";
+  import Goal from "@/components/savings/Goal.vue";
+  import NewGoal from "@/components/savings/NewGoal.vue";
 
   const screenWidth = ref(window.innerWidth);
   const screenHeight = ref(window.innerHeight);
@@ -19,10 +20,6 @@
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   });
-
-  const expenseCategories = ['Food', 'Car maintenance', 'Fuel', 'Fun & Activities', 'Other', 'Self-care', 'Clothing', 'Hobby'];
-  const paymentMethods = ['Cash', 'mBank', 'PayPal'];
-
 </script>
 
 <template>
@@ -31,19 +28,12 @@
     <Navigation v-if="screenWidth >= smallW" :screenWidth="screenWidth"/>
     <CompactNavigation v-else/>
 
-    <span class="max-w-[96rem] h-auto w-full flex flex-col sm:flex-row sm:flex-wrap items-center justify-between sm:items-start">
-      <div class="sm:max-w-[100%] w-full sm:min-w-128 sm:h-[54%] flex items-center bg-[#E9ECEF] p-4 rounded-xl shadow-xl">
-        <AddExpenditure :expenseCategories="expenseCategories" :paymentMethods="paymentMethods"/>
-        <div class="ml-4 w-[3px] h-[96%] bg-neutral-300"></div>
-      </div>
-      <!--Recent transactions section-->
-      <div class="sm:w-[59%] h-[38%] bg-[#E9ECEF] p-4 rounded-xl shadow-xl">
-        <p>Recent transactions</p>
-      </div>
-      <!--Subsription management-->
-      <div class="sm:w-[39%] h-[38%] bg-[#E9ECEF] p-4 rounded-xl shadow-xl">
-        <p>Your subscriptions</p>
-      </div>
+    <span class="max-w-[96rem] h-auto w-full flex flex-col sm:flex-row sm:flex-wrap gap-8">
+      <Goal :goalTitle="'A new bike'" :coverImage="'https://static.vecteezy.com/system/resources/thumbnails/044/600/540/small_2x/drawing-of-bike-handlebars-illustrated-cycling-safety-vector.jpg'"
+        :currentAmount="245" :goalAmount="999"
+      />
+      <NewGoal />
     </span>
+    
   </div>
 </template>

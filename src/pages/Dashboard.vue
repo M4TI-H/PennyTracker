@@ -1,27 +1,27 @@
 <script setup>
-import { ref, watchEffect } from "vue";
-import Navigation from "@/components/navigation/Navigation.vue";
-import NameCard from "@/components/dashboard/NameCard.vue";
-import AccountState from "@/components/dashboard/AccountState.vue";
-import PiggyBank from "@/components/dashboard/PiggyBank.vue";
-import ExpensesSummary from "@/components/dashboard/ExpensesSummary.vue";
-import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
+  import { ref, watchEffect } from "vue";
+  import Navigation from "@/components/navigation/Navigation.vue";
+  import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
+  import NameCard from "@/components/dashboard/NameCard.vue";
+  import AccountState from "@/components/dashboard/AccountState.vue";
+  import PiggyBank from "@/components/dashboard/PiggyBank.vue";
+  import ExpensesSummary from "@/components/dashboard/ExpensesSummary.vue";
 
-const screenWidth = ref(window.innerWidth);
-const screenHeight = ref(window.innerHeight);
-const smallW = 640;
+  const screenWidth = ref(window.innerWidth);
+  const screenHeight = ref(window.innerHeight);
+  const smallW = 640;
 
-watchEffect(async () => {
-  const handleResize = () => screenWidth.value = window.innerWidth;
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-});
+  watchEffect(async () => {
+    const handleResize = () => screenWidth.value = window.innerWidth;
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  });
 
-watchEffect(async() => {
-  const handleResize = () => screenHeight.value = window.innerHeight;
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-});
+  watchEffect(async() => {
+    const handleResize = () => screenHeight.value = window.innerHeight;
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  });
 </script>
 
 <template>
@@ -30,7 +30,7 @@ watchEffect(async() => {
     <Navigation v-if="screenWidth >= smallW" :screenWidth="screenWidth"/>
     <CompactNavigation v-else/>
     <!--Cards grid-->
-    <span class="w-auto p-2 sm:p-0 flex flex-col sm:flex-row sm:flex-wrap items-center sm:items-start gap-4">
+    <span class="max-w-[96rem] p-2 sm:p-0 flex flex-col sm:flex-row sm:flex-wrap items-center sm:items-start gap-4">
       <div class="sm:min-w-96 sm:max-w-[40%] sm:w-[30%] min-h-[30%] max-h-[10%] w-full flex flex-col gap-4">
         <!--User welcome card-->  
         <NameCard />
