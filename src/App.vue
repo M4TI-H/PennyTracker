@@ -31,17 +31,17 @@ watchEffect(async() => {
     <CompactNavigation v-else/>
     <!--Cards grid-->
     <span class="flex flex-col sm:flex-wrap items-center sm:items-start sm:justify-center w-[100%] h-[100%] sm:max-w-392 gap-2 py-2 sm:mt-0">
-      <div class="min-h-1/5 sm:h-104 sm:min-w-96 w-[90%] sm:w-[30%] flex flex-col gap-2">
+      <div class="min-h-[30%] sm:h-104 sm:min-w-96 w-[90%] sm:w-[30%] flex flex-col gap-2">
         <!--User welcome card-->  
         <NameCard />
-        <span class="flex gap-2">
+        <span class="flex gap-2 h-[55%] sm:h-32">
           <AccountState :account="'PayPal'" :balance="'215.78'"/>
           <AccountState :account="'mBank'" :balance="'1451.83'"/>
         </span>
       </div>
       <ExpensesSummary :screenWidth="screenWidth"/>
-      <span class="flex w-[90%] gap-2">
-        <div class="max-w-[50%] sm:min-w-128 sm:max-w-[60%] w-full h-32 sm:h-96 bg-[#E9ECEF] p-4 rounded-xl shadow-xl">
+      <span class="flex w-[90%] gap-2 max-h-[15%] h-full">
+        <div class="max-w-[50%] sm:max-w-[60%] sm:min-w-128 w-full sm:h-96 bg-[#E9ECEF] p-4 rounded-xl shadow-xl">
           <p>Some chart here</p>
         </div>
         <PiggyBank :screenWidth="screenWidth"/>

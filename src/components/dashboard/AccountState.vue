@@ -6,8 +6,8 @@ defineProps({
 </script>
 
 <template>
-  <div class="min-w-28 max-w-[50%] w-full sm:h-32 bg-[#E9ECEF] flex flex-col p-4
-    rounded-xl shadow-xl 
+  <div class="min-w-28 max-w-[50%] w-full h-full flex flex-col p-4
+    rounded-xl shadow-xl bg-[#E9ECEF]
     hover:scale-102 hover:cursor-pointer hover:bg-[#DEE2E6]
     transition ease-in-out duration-200">
     <p class="text-md sm:text-xl text-[#212529] font-semibold">{{ account }}</p>
