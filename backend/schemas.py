@@ -33,3 +33,20 @@ class ExpenseCategory(BaseModel):
   user_id: int
   class Config:
     from_attributes = True
+
+class Subscription(BaseModel):
+  id: int
+  service: str
+  amount: float
+  frequency: str
+  start_date: str
+  user_id: int
+  class Config:
+    from_attributes = True
+
+class NewSubscription(BaseModel):
+  service: str
+  amount: float
+  frequency: str
+  start_date: date
+  user_id: int

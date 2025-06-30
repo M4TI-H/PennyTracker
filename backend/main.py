@@ -4,8 +4,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker, Session
 from typing import List
 import schemas
-import json
-from models import users, transactions, expense_category
+from models import users, transactions, expense_category, subscriptions
 
 app = FastAPI()
 
@@ -209,3 +208,25 @@ def fetch_by_method(db: Session = Depends(get_db), user_id: int = Query(), month
   total_result = db.execute(total_query).scalar_one_or_none() 
 
   return { "expenses": expenses, "total": total_result}
+
+# ----- SUBSCRIPTIONS -----
+
+#fetch all subscriptions
+@app.get("/subscriptions/fetch_all/", response_model=List[schemas.Subscription])
+def get_all_subscriptions(db: Session = Depends(get_db)):
+  query = sa.select(
+    subscriptions
+  ).order_by(
+    subscriptions.c.start_date.asc()
+  )
+
+  result = db.execute(query)
+  rows = result.all()
+  return [dict(row._mapping) for row in rows]
+
+#insert new subscription
+@app.post("/subscriptions/new_subscription/")
+def post_new_subscription(subscription_data: schemas.NewSubscription, db: Session = Depends(get_db)):
+  query = sa.insert(subscriptions).values(**subscription_data.model_dump())
+  db.execute(query)
+  db.commit()

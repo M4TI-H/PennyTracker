@@ -10,7 +10,7 @@ const emit = defineEmits(["update:modelValue"]);
 
 const transactionsData = ref([]);
 
-const fetch_transactions = async() => {
+const fetchTransactions = async() => {
   try {
     const response = await fetch("http://localhost:8000/transactions/fetch_all");
     if (!response.ok) {
@@ -31,7 +31,7 @@ const switchShowAll = () => {
 }
 
 onMounted(() => {
-  fetch_transactions();
+  fetchTransactions();
 });
 
 </script>

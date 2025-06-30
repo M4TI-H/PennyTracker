@@ -5,7 +5,6 @@ defineProps({
 });
 
 </script>
-
 <template>
   <span v-if="filter === 'category'" v-for="expense in expenses" :key="expense.category" class=" w-[50%] flex flex-col pl-8">
     <p class="text-lg text-neutral-800 font-semibold mt-2">

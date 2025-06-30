@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineEmits } from "vue";
+import { ref } from "vue";
 defineProps({
   expenseCategories: Array,
   paymentMethods: Array
@@ -51,7 +51,7 @@ const postNewExpenditure = async() => {
     emit("after-submit");
   }
   catch (error) {
-    console.error(`An error has occured while fetching transactions data: ${error}`);
+    console.error(`An error has occured while posting transactions data: ${error}`);
   }
 }
 </script>

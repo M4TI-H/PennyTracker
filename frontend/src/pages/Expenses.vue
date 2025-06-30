@@ -1,12 +1,12 @@
 <script setup>
 import { ref, watchEffect } from "vue";
-import Navigation from "@/components/navigation/Navigation.vue";
-import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
-import AddExpenditure from "@/components/expenses/AddExpenditure.vue";
-import Subscriptions from "@/components/expenses/Subscriptions.vue";
-import RecentTransactions from "@/components/expenses/RecentTransactions.vue";
-import AllTransactions from "@/components/expenses/AllTransactions.vue";
-import ExpensesChart from "@/components/expenses/ExpensesChart.vue";
+import Navigation from "../components/navigation/Navigation.vue";
+import CompactNavigation from "../components/navigation/CompactNavigation.vue";
+import AddExpenditure from "../components/expenses/expenses-summary/AddExpenditure.vue";
+import Subscriptions from "../components/expenses/subscriptions/Subscriptions.vue";
+import RecentTransactions from "../components/expenses/transaction-history/RecentTransactions.vue";
+import AllTransactions from "../components/expenses/transaction-history/AllTransactions.vue";
+import ExpensesChart from "../components/expenses/expenses-summary/ExpensesChart.vue";
 
 const screenWidth = ref(window.innerWidth);
 const screenHeight = ref(window.innerHeight);
@@ -29,11 +29,6 @@ const paymentMethods = [
   {id: 1, name: "Cash"},
   {id: 2, name: "Bank"},
 ];
-
-const subsriptions = [
-  {id: 0, service: "Phone bill", amount: 9.49, next_payment: "01.07.25"},
-  {id: 1, service: "Netflix", amount: 17.99, next_payment: "10.07.25"},
-]
 
 const showAllExpenses = ref(false);
 

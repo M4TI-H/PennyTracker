@@ -26,3 +26,13 @@ expense_category = sa.Table(
   sa.Column("name", sa.String(255)),
   sa.Column("user_id", sa.Integer, index=True),
 )
+
+subscriptions = sa.Table(
+  "subscriptions", metadata,
+  sa.Column("id", sa.Integer, primary_key=True, index=True),
+  sa.Column("service", sa.String(255)),
+  sa.Column("amount", sa.Float),
+  sa.Column("frequency", sa.String(255)),
+  sa.Column("start_date", sa.String(255)),
+  sa.Column("user_id", sa.Integer, index=True),
+)
