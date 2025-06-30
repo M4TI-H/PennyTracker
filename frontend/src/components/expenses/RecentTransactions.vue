@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watchEffect } from "vue";
+import { onMounted, ref } from "vue";
 import ExpensesView from "./ExpensesView.vue";
 
 defineProps({
@@ -10,7 +10,7 @@ const emit = defineEmits(['update:modelValue']);
 
 const transactionsData = ref([]);
 
-const fetch_transactions = async() => {
+const fetchRecentTransactions = async() => {
   try {
     const response = await fetch("http://localhost:8000/transactions/fetch_recent");
     if (!response.ok) {
@@ -30,11 +30,11 @@ const switchShowAll = () => {
 }
 
 defineExpose({
-  fetch_transactions
+  fetchRecentTransactions
 });
 
-watchEffect(async() => {
-  fetch_transactions();
+onMounted(async () => {
+  fetchRecentTransactions();
 });
 
 </script>

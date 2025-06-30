@@ -19,7 +19,7 @@ const data = ref({
 
 const emit = defineEmits(["after-submit"]);
 
-const post_new_expenditure = async() => {
+const postNewExpenditure = async() => {
   try {
     const response = await fetch("http://localhost:8000/transactions/new_expenditure/", {
       method: "POST",
@@ -83,7 +83,7 @@ const post_new_expenditure = async() => {
         <option :value="category.id" v-for="category in expenseCategories" :key="category.id">{{ category.name }}</option>
       </select>
     </span>
-    <button @click="post_new_expenditure"
+    <button @click="postNewExpenditure"
       class="w-[50%] h-10 rounded-3xl bg-neutral-800 text-sm text-[#E9ECEF]
     border-neutral-800 border-2 hover:cursor-pointer hover:bg-[#588157]
       transition ease-in-out duration-200">Confirm</button>
