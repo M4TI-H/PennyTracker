@@ -1,9 +1,12 @@
 <script setup>
 import { ref, watchEffect } from "vue";
+import ExpensesView from "./ExpensesView.vue";
 
 defineProps({
-  expenseCategories: Array
+  modelValue: Boolean
 });
+
+const emit = defineEmits(['update:modelValue']);
 
 const transactionsData = ref([]);
 
@@ -21,6 +24,11 @@ const fetch_transactions = async() => {
   }
 }
 
+//switch display state of all expenses component
+const switchShowAll = () => {
+  emit('update:modelValue', true);
+}
+
 defineExpose({
   fetch_transactions
 });
@@ -32,21 +40,11 @@ watchEffect(async() => {
 </script>
 
 <template>
-  <div class="sm:w-[59%] h-[38%] flex flex-col items-center bg-[#E9ECEF] p-4 rounded-xl shadow-xl">
+  <div class="sm:w-[59%] h-[38%] flex flex-col items-center bg-[#E9ECEF] p-4 rounded-xl shadow-xl gap-2">
     <p class="text-2xl text-neutral-800 font-semibold mb-2">Recent transactions</p>
-    <div class="w-[90%] h-8 flex items-center">
-      <p class="w-[15%] text-md text-neutral-800 font-bold">Amount</p>
-      <p class="w-[30%] text-md text-neutral-800 font-bold">Title</p>
-      <p class="w-[25%] text-md text-neutral-800 font-bold">Category</p>
-      <p class="w-[15%] text-md text-neutral-800 font-bold">Method</p>
-      <p class="w-[15%] text-md text-neutral-800 font-bold">Date</p>
-    </div>
-    <div v-for="expense in transactionsData" :key="expense.id" class="w-[90%] h-8  flex items-center">
-      <p class="w-[15%] text-sm text-neutral-800 font-semibold">${{ expense.amount }}</p>
-      <p class="w-[30%] text-sm text-neutral-800 font-semibold">{{ expense.name }}</p>
-      <p class="w-[25%] text-sm text-neutral-800 font-semibold">{{ expense.category_name }}</p>
-      <p class="w-[15%] text-sm text-neutral-800 font-semibold">{{ expense.method }}</p>
-      <p class="w-[15%] text-sm text-neutral-800 font-semibold">{{ expense.date }}</p>
-    </div>
+    <ExpensesView :transactionsData="transactionsData"/>
+    <a @click="switchShowAll"
+      class="text-sm text-neutral-400 font-semibold hover:underline hover:cursor-pointer"
+    >Show all</a>
   </div>
 </template>

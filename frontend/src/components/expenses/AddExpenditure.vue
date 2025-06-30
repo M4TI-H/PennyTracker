@@ -54,7 +54,6 @@ const post_new_expenditure = async() => {
     console.error(`An error has occured while fetching transactions data: ${error}`);
   }
 }
-
 </script>
 
 <template>

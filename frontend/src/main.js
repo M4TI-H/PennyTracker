@@ -7,12 +7,14 @@ import Dashboard from './pages/Dashboard.vue';
 import Expenses from './pages/Expenses.vue';
 import Savings from './pages/Savings.vue';
 import Incomes from './pages/Incomes.vue';
+import Login from './pages/Login.vue';
 
 const routes = [
   { path: "/", component: Dashboard},
   { path: "/expenses", component: Expenses},
   { path: "/savings", component: Savings},
-  { path: "/incomes", component: Incomes}
+  { path: "/incomes", component: Incomes},
+  { path: "/login", component: Login},
 ];
 
 const router = createRouter({

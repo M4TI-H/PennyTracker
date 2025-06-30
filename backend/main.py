@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker, Session
@@ -71,7 +71,21 @@ def get_recent_transactions(db: Session = Depends(get_db)):
   ).order_by(
     transactions.c.date.desc()
   ).limit(6)
+  result = db.execute(query)
+  rows = result.all()
+  return [dict(row._mapping) for row in rows]
 
+@app.get("/transactions/fetch_all/", response_model=List[schemas.Transaction])
+def get_all_transactions(db: Session = Depends(get_db)):
+  query = sa.select(
+    transactions,
+    expense_category.c.name.label("category_name")
+  ).join(
+    expense_category,
+    transactions.c.category == expense_category.c.id
+  ).order_by(
+    transactions.c.date.desc()
+  )
   result = db.execute(query)
   rows = result.all()
   return [dict(row._mapping) for row in rows]
@@ -81,3 +95,41 @@ def post_new_expenditure(transaction_data: schemas.NewTransaction, db: Session =
   query = sa.insert(transactions).values(**transaction_data.model_dump())
   db.execute(query)
   db.commit()
+
+@app.get("/transactions/fetch_by_category")
+def fetch_by_category(db: Session = Depends(get_db), user_id: int = Query(), month: str = Query()):
+
+  date_pattern = f"%-{month}-%"
+
+  query = sa.select(
+    expense_category.c.name,
+    sa.func.sum(transactions.c.amount)
+  ).join(
+    transactions,
+    transactions.c.category == expense_category.c.id
+  ).where(
+    transactions.c.user_id == user_id,
+    transactions.c.date.like(date_pattern)
+  ).group_by(
+    expense_category.c.name
+  )
+  
+  result = db.execute(query)
+  rows = result.all()
+  expenses = []
+  for row in rows:
+    expenses.append({
+      "category": row[0],
+      "amount": row[1]
+    })
+
+  total_query = sa.select(
+    sa.func.sum(transactions.c.amount)
+  ).where(
+    transactions.c.user_id == user_id,
+    transactions.c.date.like(date_pattern)
+  )
+
+  total_result = db.execute(total_query).scalar_one_or_none() 
+
+  return { "expenses": expenses, "total": total_result}
