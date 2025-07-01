@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, watchEffect } from "vue";
+  import { ref, watchEffect, onMounted } from "vue";
   import Navigation from "@/components/navigation/Navigation.vue";
   import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
   import Goal from "@/components/savings/Goal.vue";
@@ -20,6 +20,28 @@
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   });
+
+  const savingsData = ref([]);
+
+const fetchSavings = async() => {
+  try {
+    const response = await fetch("http://localhost:8000/savings/fetch_all");
+    if (!response.ok) {
+      throw new Error (`HTTP error! Status: ${response.status}`);
+    }
+
+    savingsData.value = await response.json();
+    console.table(savingsData.value);
+  }
+  catch (error) {
+    console.error(`An error has occured while fetching savings data: ${error}`);
+  }
+}
+
+onMounted(async () => {
+  fetchSavings();
+});
+
 </script>
 
 <template>
@@ -29,8 +51,8 @@
     <CompactNavigation v-else/>
 
     <span class="max-w-[96rem] h-auto w-full flex flex-col sm:flex-row sm:flex-wrap gap-8">
-      <Goal :goalTitle="'A new bike'" :coverImage="'https://static.vecteezy.com/system/resources/thumbnails/044/600/540/small_2x/drawing-of-bike-handlebars-illustrated-cycling-safety-vector.jpg'"
-        :currentAmount="245" :goalAmount="999"
+      <Goal v-for="goal in savingsData" :goalTitle="goal.title" :coverImage="goal.cover"
+        :currentAmount="goal.current_amount" :goalAmount="goal.goal_amount"
       />
       <NewGoal />
     </span>

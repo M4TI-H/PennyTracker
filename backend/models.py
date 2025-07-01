@@ -36,3 +36,15 @@ subscriptions = sa.Table(
   sa.Column("start_date", sa.String(255)),
   sa.Column("user_id", sa.Integer, index=True),
 )
+
+savings = sa.Table(
+  "savings", metadata,
+  sa.Column("id", sa.Integer, primary_key=True, index=True),
+  sa.Column("title", sa.String(255)),
+  sa.Column("goal_amount", sa.Float),
+  sa.Column("current_amount", sa.Float),
+  sa.Column("cover", sa.String(255), nullable=True),
+  sa.Column("finished", sa.Boolean),
+  sa.Column("creation_date", sa.String(255)),
+  sa.Column("user_id", sa.Integer, index=True),
+)

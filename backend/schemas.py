@@ -50,3 +50,24 @@ class NewSubscription(BaseModel):
   frequency: str
   start_date: date
   user_id: int
+
+class Savings(BaseModel):
+  id: int
+  title: str
+  goal_amount: float
+  current_amount: float
+  cover: str
+  finished: int
+  creation_date: str
+  user_id: int
+  class Config:
+    from_attributes = True
+
+class NewSavings(BaseModel):
+  title: str
+  goal_amount: float
+  current_amount: float
+  cover: str
+  finished: int
+  creation_date: date
+  user_id: int

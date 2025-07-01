@@ -4,7 +4,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker, Session
 from typing import List
 import schemas
-from models import users, transactions, expense_category, subscriptions
+from models import users, transactions, expense_category, subscriptions, savings
 
 app = FastAPI()
 
@@ -228,5 +228,28 @@ def get_all_subscriptions(db: Session = Depends(get_db)):
 @app.post("/subscriptions/new_subscription/")
 def post_new_subscription(subscription_data: schemas.NewSubscription, db: Session = Depends(get_db)):
   query = sa.insert(subscriptions).values(**subscription_data.model_dump())
+  db.execute(query)
+  db.commit()
+
+
+# ----- SAVINGS -----
+
+#fetch all savings
+@app.get("/savings/fetch_all/", response_model=List[schemas.Savings])
+def get_all_savings(db: Session = Depends(get_db)):
+  query = sa.select(
+    savings
+  ).order_by(
+    savings.c.creation_date.asc()
+  )
+
+  result = db.execute(query)
+  rows = result.all()
+  return [dict(row._mapping) for row in rows]
+
+#insert new goal
+@app.post("/savings/new_goal/")
+def post_new_goal(goal_data: schemas.NewSavings, db: Session = Depends(get_db)):
+  query = sa.insert(savings).values(**goal_data.model_dump())
   db.execute(query)
   db.commit()
