@@ -6,7 +6,7 @@ defineProps({
   modelValue: Boolean,
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue", "deletion"]);
 
 const transactionsData = ref([]);
 
@@ -25,13 +25,14 @@ const fetchTransactions = async() => {
 }
 
 //switch display state of all expenses component
-const switchShowAll = () => {
-  emit('update:modelValue', false);
+const switchShowAll = () => emit('update:modelValue', false);
+
+const transactionDeletion = () => {
+  fetchTransactions();
+  emit("deletion");
 }
 
-onMounted(() => {
-  fetchTransactions();
-});
+onMounted(() => fetchTransactions());
 
 </script>
 
@@ -47,7 +48,7 @@ onMounted(() => {
         <i class="pi pi-times"></i>
       </button>
       <div class="w-full overflow-y-auto">
-        <ExpensesView :transactionsData="transactionsData" @deletion="fetchTransactions"/>
+        <ExpensesView :transactionsData="transactionsData" @deletion="transactionDeletion"/>
       </div>
     </div>
   </div>

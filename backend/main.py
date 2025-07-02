@@ -4,7 +4,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker, Session
 from typing import List
 import schemas
-from models import users, transactions, expense_category, subscriptions, savings
+from models import users, transactions, expense_category, subscriptions, savings, savings_action
 
 app = FastAPI()
 
@@ -266,3 +266,58 @@ def post_new_goal(goal_data: schemas.NewSavings, db: Session = Depends(get_db)):
   query = sa.insert(savings).values(**goal_data.model_dump())
   db.execute(query)
   db.commit()
+
+#insert new action (contribution / withdrawal)
+@app.post("/savings/new_goal_action")
+def post_new_goal_action(action_data: schemas.NewGoalAction, db: Session = Depends(get_db)):
+  query = sa.insert(savings_action).values(**action_data.model_dump())
+  db.execute(query)
+  db.commit()
+
+#fetch recent savings actions
+@app.get("/savings/fetch_actions/", response_model=List[schemas.GoalAction])
+def get_savings_actions(db: Session = Depends(get_db), user_id: int = Query(), goal_id: int = Query()):
+  query = sa.select(
+    savings_action
+  ).where(
+    savings_action.c.user_id == user_id,
+    savings_action.c.goal_id == goal_id,
+  ).order_by(
+    savings_action.c.date.asc()
+  ).limit(5)
+
+  result = db.execute(query)
+  rows = result.all()
+  return [dict(row._mapping) for row in rows]
+
+#deposit funds
+@app.put("/savings/deposit/")
+def deposit_funds(db: Session = Depends(get_db), user_id: int = Query(), goal_id: int = Query(), amount: float = Query()):
+  print(f"DEPOSIT endpoint called with user_id={user_id}, goal_id={goal_id}, amount={amount}")
+  
+  #get current amount
+  curr_am_query = sa.select(
+    savings.c.current_amount
+  ).where(
+    savings.c.user_id == user_id,
+    savings.c.id == goal_id
+  )
+  
+  current_amount = db.execute(curr_am_query).scalar_one_or_none()
+  print("Current amount before:", current_amount)
+
+  if current_amount or current_amount == 0:
+    new_amount = current_amount + amount
+    print("New amount to be set:", new_amount)
+
+    query = sa.update(
+      savings
+    ).where(
+      savings.c.user_id == user_id,
+      savings.c.id == goal_id
+    ).values(
+      current_amount = new_amount
+    )
+
+    db.execute(query)
+    db.commit()

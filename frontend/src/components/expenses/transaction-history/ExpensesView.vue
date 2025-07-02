@@ -42,9 +42,6 @@ const deleteTransaction = async(user_id, transaction) => {
     <p class="w-[20%] text-sm text-neutral-800 font-semibold">{{ expense.category_name }}</p>
     <p class="w-[15%] text-sm text-neutral-800 font-semibold">{{ expense.method }}</p>
     <p class="w-[15%] text-sm text-neutral-800 font-semibold">{{ expense.date }}</p>
-    <span class="w-[5%] flex justify-between">
-      <button @click="deleteTransaction(2, expense.id)" class="hover:cursor-pointer transition ease-in-out duration-200 hover:scale-120"><i class="pi pi-trash"></i></button>
-      <button class="hover:cursor-pointer transition ease-in-out duration-200 hover:scale-120"><i class="pi pi-pen-to-square"></i></button>
-    </span>
+    <button @click="deleteTransaction(2, expense.id)" class="w-[5%] hover:cursor-pointer transition ease-in-out duration-200 hover:scale-120"><i class="pi pi-trash"></i></button>
   </div>
 </template>

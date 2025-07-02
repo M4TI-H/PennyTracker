@@ -54,9 +54,7 @@ const refreshTransactions = () => {
   transactionsByCategory.value?.refreshData();
 };
 
-watchEffect(() => {
-  fetchExpenseCategories();
-});
+watchEffect(() => fetchExpenseCategories());
 </script>
 <template>
   <div class="fixed flex w-full h-full justify-center gap-16 bg-[#DAD7CD] sm:py-16 ">
@@ -71,10 +69,10 @@ watchEffect(() => {
         <ExpensesChart ref="transactionsByCategory"/>
       </div>
       <!--Recent transactions section-->
-      <RecentTransactions ref="recentTransactionsComponent" v-model="showAllExpenses"/>
+      <RecentTransactions ref="recentTransactionsComponent" v-model="showAllExpenses" @deletion="refreshTransactions"/>
       <!--Subsription management-->
       <Subscriptions :subsriptions="subsriptions"/>
     </span>
   </div>
-  <AllTransactions v-if="showAllExpenses" v-model="showAllExpenses"/>
+  <AllTransactions v-if="showAllExpenses" v-model="showAllExpenses" @deletion="refreshTransactions"/>
 </template>

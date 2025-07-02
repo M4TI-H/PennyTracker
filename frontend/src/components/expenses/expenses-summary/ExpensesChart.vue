@@ -68,30 +68,18 @@ const months = [
 
 onMounted(async () => {
   monthId.value = (new Date().getMonth() + 1).toString().padStart(2, "0");
-  if (selectedFilter.value === "category") {
-    await fetchExpensesByCategory(userId, monthId.value);
-  } 
-  else if (selectedFilter.value === "method") {
-    await fetchExpensesByMethod(userId, monthId.value);
-  }
+  if (selectedFilter.value === "category") await fetchExpensesByCategory(userId, monthId.value);
+  else if (selectedFilter.value === "method") await fetchExpensesByMethod(userId, monthId.value);
 });
 
 watch([monthId, selectedFilter], async ([newMonth, newFilter]) => {
-  if (newFilter === "category") {
-    await fetchExpensesByCategory(userId, newMonth);
-  } 
-  else if (newFilter === "method") {
-    await fetchExpensesByMethod(userId, newMonth);
-  }
-})
+  if (newFilter === "category") await fetchExpensesByCategory(userId, newMonth);
+  else if (newFilter === "method") await fetchExpensesByMethod(userId, newMonth);
+});
 
 const refreshData = async () => {
-  if (selectedFilter.value === "category") {
-    await fetchExpensesByCategory(userId, monthId.value);
-  } 
-  else if (selectedFilter.value === "method") {
-    await fetchExpensesByMethod(userId, monthId.value);
-  }
+  if (selectedFilter.value === "category") await fetchExpensesByCategory(userId, monthId.value);
+  else if (selectedFilter.value === "method") await fetchExpensesByMethod(userId, monthId.value);
 };
 
 defineExpose({

@@ -3,13 +3,8 @@ import { ref } from "vue";
 
 const displayForm = ref(false);
 
-const showForm = () => {
-  displayForm.value = true;
-}
-
-const hideForm = () => {
-  displayForm.value = false;
-}
+const showForm = () => displayForm.value = true;
+const hideForm = () => displayForm.value = false;
 
 function formatDate(date) {
   return date.toISOString().split('T')[0];

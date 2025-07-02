@@ -1,6 +1,5 @@
 <script setup>
   let monthNow = new Date().toLocaleString("en-GB", { month: "long"});
-
 </script>
 
 <template>

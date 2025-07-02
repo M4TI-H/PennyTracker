@@ -48,3 +48,13 @@ savings = sa.Table(
   sa.Column("creation_date", sa.String(255)),
   sa.Column("user_id", sa.Integer, index=True),
 )
+
+savings_action = sa.Table(
+  "savings_action", metadata,
+  sa.Column("id", sa.Integer, primary_key=True, index=True),
+  sa.Column("type", sa.String(255)),
+  sa.Column("amount", sa.Float),
+  sa.Column("date", sa.String(255)),
+  sa.Column("goal_id", sa.Integer, index=True),
+  sa.Column("user_id", sa.Integer, index=True),
+)

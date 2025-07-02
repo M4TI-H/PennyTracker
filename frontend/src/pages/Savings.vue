@@ -31,7 +31,6 @@ const fetchSavings = async() => {
     }
 
     savingsData.value = await response.json();
-    console.table(savingsData.value);
   }
   catch (error) {
     console.error(`An error has occured while fetching savings data: ${error}`);
@@ -51,9 +50,7 @@ onMounted(async () => {
     <CompactNavigation v-else/>
 
     <span class="max-w-[96rem] h-auto w-full flex flex-col sm:flex-row sm:flex-wrap gap-8">
-      <Goal v-for="goal in savingsData" :goalTitle="goal.title" :coverImage="goal.cover"
-        :currentAmount="goal.current_amount" :goalAmount="goal.goal_amount"
-      />
+      <Goal v-for="goal in savingsData" :key="goal.id" :goal="goal"/>
       <NewGoal />
     </span>
     

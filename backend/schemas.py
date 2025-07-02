@@ -71,3 +71,26 @@ class NewSavings(BaseModel):
   finished: int
   creation_date: date
   user_id: int
+
+class UpdateGoalCurrentAmount(BaseModel):
+  id: int
+  current_amount: float
+  user_id: int
+  finished: int
+
+class GoalAction(BaseModel):
+  id: int
+  type: str
+  amount: float
+  date: str
+  goal_id: int
+  user_id: int
+  class Config:
+    from_attributes = True
+
+class NewGoalAction(BaseModel):
+  type: str
+  amount: float
+  date: date
+  goal_id: int
+  user_id: int
