@@ -24,7 +24,6 @@ const fetchTransactions = async() => {
   }
 }
 
-
 //switch display state of all expenses component
 const switchShowAll = () => {
   emit('update:modelValue', false);
@@ -47,8 +46,8 @@ onMounted(() => {
       >
         <i class="pi pi-times"></i>
       </button>
-      <div class="w-[90%] overflow-y-auto">
-        <ExpensesView :transactionsData="transactionsData"/>
+      <div class="w-full overflow-y-auto">
+        <ExpensesView :transactionsData="transactionsData" @deletion="fetchTransactions"/>
       </div>
     </div>
   </div>

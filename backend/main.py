@@ -71,7 +71,7 @@ def get_recent_transactions(db: Session = Depends(get_db)):
     transactions.c.category == expense_category.c.id
   ).order_by(
     transactions.c.date.desc()
-  ).limit(6)
+  ).limit(4)
   result = db.execute(query)
   rows = result.all()
   return [dict(row._mapping) for row in rows]
@@ -96,6 +96,19 @@ def get_all_transactions(db: Session = Depends(get_db)):
 @app.post("/transactions/new_expenditure/")
 def post_new_expenditure(transaction_data: schemas.NewTransaction, db: Session = Depends(get_db)):
   query = sa.insert(transactions).values(**transaction_data.model_dump())
+  db.execute(query)
+  db.commit()
+
+#delete single transaction
+@app.delete("/transactions/delete_one/")
+def delete_transaction(db: Session = Depends(get_db), user_id: int = Query(), transaction_id: int = Query()):
+  query = sa.delete(
+    transactions
+  ).where(
+    transactions.c.id == transaction_id,
+    transactions.c.user_id == user_id
+  )
+
   db.execute(query)
   db.commit()
 

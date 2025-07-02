@@ -42,8 +42,8 @@ onMounted(async () => {
 <template>
   <div class="sm:w-[59%] h-[38%] flex flex-col items-center bg-[#E9ECEF] p-4 rounded-xl shadow-xl gap-2">
     <p class="text-2xl text-neutral-800 font-semibold mb-2">Recent transactions</p>
-    <ExpensesView :transactionsData="transactionsData"/>
-    <a @click="switchShowAll"
+    <ExpensesView :transactionsData="transactionsData" @deletion="fetchRecentTransactions"/>
+    <a v-if="transactionsData.length > 4" @click="switchShowAll"
       class="text-sm text-neutral-400 font-semibold hover:underline hover:cursor-pointer"
     >Show all</a>
   </div>
