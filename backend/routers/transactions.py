@@ -51,6 +51,24 @@ def get_all_transactions(db: Session = Depends(get_db)):
 #insert new transaction
 @router.post("/new_expenditure/")
 def post_new_expenditure(transaction_data: schemas.NewTransaction, db: Session = Depends(get_db)):
+
+  name = transaction_data.name
+  amount = transaction_data.amount
+  method = transaction_data.method
+  category = transaction_data.category
+
+  if not name or name == "" or name.isspace():
+    raise HTTPException(status_code=400, detail="Title cannot be empty.")
+
+  if amount is None or amount <= 0:
+    raise HTTPException(status_code=400, detail="Please input correct amount.")
+  
+  if not method or method.isspace():
+    raise HTTPException(status_code=400, detail="Please select the payment method.")
+
+  if category == -1:
+    raise HTTPException(status_code=400, detail="Please select the expense category.")
+
   query = sa.insert(transactions).values(**transaction_data.model_dump())
   db.execute(query)
   db.commit()

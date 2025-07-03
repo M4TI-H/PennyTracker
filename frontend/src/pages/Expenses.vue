@@ -31,7 +31,6 @@ const paymentMethods = [
 ];
 
 const showAllExpenses = ref(false);
-
 const expenseCategories = ref([]);
 
 const fetchExpenseCategories = async() => {
@@ -61,7 +60,6 @@ watchEffect(() => fetchExpenseCategories());
     <!--Menu bar with buttons-->
     <Navigation v-if="screenWidth >= smallW" :screenWidth="screenWidth"/>
     <CompactNavigation v-else/>
-
     <span class="max-w-[96rem] h-auto w-full flex flex-col sm:flex-row sm:flex-wrap items-center justify-between sm:items-start">
       <div class="sm:max-w-[100%] w-full sm:min-w-128 sm:h-[54%] flex items-center bg-[#E9ECEF] p-4 rounded-xl shadow-xl">
         <AddExpenditure :expenseCategories="expenseCategories" :paymentMethods="paymentMethods" @after-submit="refreshTransactions"/>
@@ -71,7 +69,7 @@ watchEffect(() => fetchExpenseCategories());
       <!--Recent transactions section-->
       <RecentTransactions ref="recentTransactionsComponent" v-model="showAllExpenses" @deletion="refreshTransactions"/>
       <!--Subsription management-->
-      <Subscriptions :subsriptions="subsriptions"/>
+      <Subscriptions />
     </span>
   </div>
   <AllTransactions v-if="showAllExpenses" v-model="showAllExpenses" @deletion="refreshTransactions"/>

@@ -10,16 +10,17 @@ function formatDate(date) {
 }
 
 const data = ref({
-  name: undefined,
+  name: "",
   amount: null,
-  method: undefined,
-  category: undefined,
+  method: "",
+  category: null,
   user_id: 2
 });
 
 const emit = defineEmits(["after-submit"]);
 
 const postNewExpenditure = async() => {
+  console.table(data.value);
   try {
     const response = await fetch("http://localhost:8000/transactions/new_expenditure/", {
       method: "POST",
@@ -28,23 +29,24 @@ const postNewExpenditure = async() => {
       },
       body: JSON.stringify({
         name: data.value.name, 
-        amount: parseFloat(data.value.amount), 
+        amount: data.value.amount ? parseFloat(data.value.amount) : 0,
         method: data.value.method, 
-        category: parseInt(data.value.category),
+        category: data.value.category ? parseInt(data.value.category) : -1,
         date: formatDate(new Date()),
         user_id: data.value.user_id
       })
     });
 
     if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
+      const err = await response.json()
+      throw new Error(err.detail); 
     }
 
     data.value = {
-      name: undefined,
+      name: "",
       amount: null,
-      method: undefined,
-      category: undefined,
+      method: "",
+      category: null,
       user_id: 2
     };
 
