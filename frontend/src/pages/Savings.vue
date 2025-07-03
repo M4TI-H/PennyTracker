@@ -50,7 +50,7 @@ onMounted(async () => {
     <CompactNavigation v-else/>
 
     <span class="max-w-[96rem] h-auto w-full flex flex-wrap sm:flex-row sm:flex-wrap gap-8 overflow-y-auto">
-      <Goal v-for="goal in savingsData" :key="goal.id" :goal="goal" @action="fetchSavings"/>
+      <Goal v-for="goal in savingsData" :key="goal.id" :goal="goal" @refresh="fetchSavings"/>
       <NewGoal @post-goal="fetchSavings"/>
     </span>
   </div>

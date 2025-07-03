@@ -31,7 +31,7 @@ def post_new_goal(goal_data: schemas.NewSavings, db: Session = Depends(get_db)):
   if title == "" or title.isspace():
     raise HTTPException(status_code=400, detail="Title cannot be empty.")
   
-  if amount <= 0:
+  if amount is None or amount <= 0:
     raise HTTPException(status_code=400, detail="Please input correct amount.")
 
   query = sa.insert(savings).values(**goal_data.model_dump())
@@ -177,3 +177,27 @@ def withdraw_funds(db: Session = Depends(get_db), user_id: int = Query(), goal_i
   db.commit()
 
   return {"status": "success"}
+
+#delete goal
+@router.delete("/delete_goal/")
+def delete_goal(db: Session = Depends(get_db), user_id: int = Query(), goal_id: int = Query()):
+
+  query1 = sa.delete(
+    savings_action
+  ).where(
+    savings_action.c.goal_id == goal_id,
+    savings_action.c.user_id == user_id
+  )
+
+  db.execute(query1)
+  db.commit()
+
+  query2 = sa.delete(
+    savings
+  ).where(
+    savings.c.id == goal_id,
+    savings.c.user_id == user_id
+  )
+
+  db.execute(query2)
+  db.commit()

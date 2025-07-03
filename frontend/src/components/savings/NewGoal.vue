@@ -24,7 +24,7 @@ const postNewGoal = async() => {
       },
       body: JSON.stringify({
         title: data.value.title, 
-        goal_amount: parseFloat(data.value.amount), 
+        goal_amount: data.value.amount ? parseFloat(data.value.amount) : -1, 
         current_amount: 0.0,
         cover: data.value.cover || "#000000",
         finished: 0,
@@ -56,9 +56,9 @@ const postNewGoal = async() => {
 </script>
 
 <template>
-  <div @click="showForm" class="w-172 h-64 flex flex-col items-center justify-center hover:cursor-pointer
+  <div @click="showForm" class="w-172 h-64 flex flex-col items-center justify-center 
   bg-[#E9ECEF]/70 hover:bg-[#E9ECEF]/100 rounded-xl shadow-xl border-2 border-neutral-800 border-dashed"
-    :class="{'opacity-100': displayForm}">
+    :class="{'opacity-100': displayForm}, {'hover:cursor-pointer': !displayForm}">
      <p v-if="!displayForm" class="font-semibold text-4xl text-neutral-800">+</p>
      <span v-else class="relative w-full h-full flex flex-col items-center p-4 pb-2">
       <span class="flex w-full h-auto justify-between items-center">
