@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, Query
+from fastapi import FastAPI, Depends, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker, Session
@@ -253,7 +253,7 @@ def get_all_savings(db: Session = Depends(get_db)):
   query = sa.select(
     savings
   ).order_by(
-    savings.c.creation_date.asc()
+    savings.c.creation_date.desc()
   )
 
   result = db.execute(query)
@@ -263,6 +263,16 @@ def get_all_savings(db: Session = Depends(get_db)):
 #insert new goal
 @app.post("/savings/new_goal/")
 def post_new_goal(goal_data: schemas.NewSavings, db: Session = Depends(get_db)):
+
+  title = goal_data.title
+  amount = goal_data.goal_amount
+
+  if title == "" or title.isspace():
+    raise HTTPException(status_code=400, detail="Title cannot be empty.")
+  
+  if amount <= 0:
+    raise HTTPException(status_code=400, detail="Please input correct amount.")
+
   query = sa.insert(savings).values(**goal_data.model_dump())
   db.execute(query)
   db.commit()
@@ -270,9 +280,41 @@ def post_new_goal(goal_data: schemas.NewSavings, db: Session = Depends(get_db)):
 #insert new action (contribution / withdrawal)
 @app.post("/savings/new_goal_action")
 def post_new_goal_action(action_data: schemas.NewGoalAction, db: Session = Depends(get_db)):
+  if action_data.type not in ("deposit", "withdraw"):
+    raise HTTPException(status_code=400, detail="Invalid action type.")
+  
+  #get current amount
+  curr_am_query = sa.select(
+    savings.c.current_amount,
+    savings.c.goal_amount
+  ).where(
+    savings.c.user_id == action_data.user_id,
+    savings.c.id == action_data.goal_id
+  )
+
+  row = db.execute(curr_am_query).first()
+
+  if row is None:
+    raise HTTPException(status_code=404, detail="Goal does not exist.")
+
+  current_amount = row.current_amount
+  goal_amount = row.goal_amount
+
+  if action_data.amount <= 0:
+    raise HTTPException(status_code=400, detail="Amount must be positive")
+  
+  if action_data.type == "withdraw" and action_data.amount > current_amount:
+    raise HTTPException(status_code=400, detail="Withdraw amount exceeds current amount")
+
+  new_amount = current_amount + action_data.amount
+
+  if action_data.type == "deposit" and new_amount > goal_amount:
+    raise HTTPException(status_code=400, detail="Deposit amount exceeds goal amount")
+      
   query = sa.insert(savings_action).values(**action_data.model_dump())
   db.execute(query)
   db.commit()
+  return {"status": "success"}
 
 #fetch recent savings actions
 @app.get("/savings/fetch_actions/", response_model=List[schemas.GoalAction])
@@ -283,7 +325,7 @@ def get_savings_actions(db: Session = Depends(get_db), user_id: int = Query(), g
     savings_action.c.user_id == user_id,
     savings_action.c.goal_id == goal_id,
   ).order_by(
-    savings_action.c.date.asc()
+    savings_action.c.date.desc()
   ).limit(5)
 
   result = db.execute(query)
@@ -293,7 +335,54 @@ def get_savings_actions(db: Session = Depends(get_db), user_id: int = Query(), g
 #deposit funds
 @app.put("/savings/deposit/")
 def deposit_funds(db: Session = Depends(get_db), user_id: int = Query(), goal_id: int = Query(), amount: float = Query()):
-  print(f"DEPOSIT endpoint called with user_id={user_id}, goal_id={goal_id}, amount={amount}")
+  
+  #get current amount
+  curr_am_query = sa.select(
+    savings.c.current_amount,
+    savings.c.goal_amount
+  ).where(
+    savings.c.user_id == user_id,
+    savings.c.id == goal_id
+  )
+
+  row = db.execute(curr_am_query).first()
+
+  if row is None:
+    raise HTTPException(status_code=404, detail="Goal does not exist.")
+
+  current_amount = row.current_amount
+  goal_amount = row.goal_amount
+
+  if amount <= 0:
+    raise HTTPException(status_code=400, detail="Deposit amount must be positive")
+  
+  new_amount = current_amount + amount
+
+  if new_amount > goal_amount:
+      raise HTTPException(status_code=400, detail="Deposit amount exceeds goal amount")
+  finished = 0
+
+  if new_amount == goal_amount:
+    finished = 1
+
+  query = sa.update(
+    savings
+  ).where(
+    savings.c.user_id == user_id,
+    savings.c.id == goal_id
+  ).values(
+    current_amount = new_amount,
+    finished = finished
+  )
+
+  db.execute(query)
+  db.commit()
+
+  return {"status": "success"}
+
+#withdraw funds
+@app.put("/savings/withdraw/")
+def withdraw_funds(db: Session = Depends(get_db), user_id: int = Query(), goal_id: int = Query(), amount: float = Query()):
   
   #get current amount
   curr_am_query = sa.select(
@@ -304,20 +393,26 @@ def deposit_funds(db: Session = Depends(get_db), user_id: int = Query(), goal_id
   )
   
   current_amount = db.execute(curr_am_query).scalar_one_or_none()
-  print("Current amount before:", current_amount)
 
-  if current_amount or current_amount == 0:
-    new_amount = current_amount + amount
-    print("New amount to be set:", new_amount)
+  if current_amount is None:
+    raise HTTPException(status_code=404, detail="Goal does not exist.")
 
-    query = sa.update(
-      savings
-    ).where(
-      savings.c.user_id == user_id,
-      savings.c.id == goal_id
-    ).values(
-      current_amount = new_amount
-    )
+  if amount > current_amount:
+    raise HTTPException(status_code=400, detail="Cannot withdraw more than currently deposited.")
 
-    db.execute(query)
-    db.commit()
+  new_amount = current_amount - amount
+
+  query = sa.update(
+    savings
+  ).where(
+    savings.c.user_id == user_id,
+    savings.c.id == goal_id
+  ).values(
+    current_amount = new_amount,
+    finished = 0
+  )
+
+  db.execute(query)
+  db.commit()
+
+  return {"status": "success"}

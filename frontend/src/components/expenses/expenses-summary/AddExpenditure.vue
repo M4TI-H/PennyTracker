@@ -55,7 +55,6 @@ const postNewExpenditure = async() => {
   }
 }
 </script>
-
 <template>
   <div class="w-[25%] flex flex-col items-center gap-6">
     <p class="text-2xl text-neutral-800 font-semibold">New expenditure</p>
@@ -67,17 +66,17 @@ const postNewExpenditure = async() => {
       class="w-[70%] h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
       v-model="data.amount"
     />
-    <span class="w-[70%] h-10 flex justify-between items-center pl-2">
+    <span class="w-[70%] h-10 flex justify-between items-center">
       <p class="text-md text-neutral-800 font-semibold">Method:</p>
-      <select class="w-40 h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
+      <select class="w-[60%] h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
         v-model="data.method"
       >
         <option v-for="method in paymentMethods" :key="method.id">{{ method.name }}</option>
       </select>
     </span>
-    <span class="w-[70%] h-10 flex justify-between items-center pl-2">
+    <span class="w-[70%] h-10 flex justify-between items-center">
       <p class="text-md text-neutral-800 font-semibold">Category:</p>
-      <select class="w-40 h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
+      <select class="w-[60%] h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
         v-model="data.category"
       >
         <option :value="category.id" v-for="category in expenseCategories" :key="category.id">{{ category.name }}</option>

@@ -44,15 +44,14 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="fixed flex w-full h-full justify-center gap-16 bg-[#DAD7CD] sm:py-16 ">
+  <div class="fixed flex w-full h-full justify-center gap-16 bg-[#DAD7CD] sm:py-16">
     <!--Menu bar with buttons-->
     <Navigation v-if="screenWidth >= smallW" :screenWidth="screenWidth"/>
     <CompactNavigation v-else/>
 
-    <span class="max-w-[96rem] h-auto w-full flex flex-col sm:flex-row sm:flex-wrap gap-8">
-      <Goal v-for="goal in savingsData" :key="goal.id" :goal="goal"/>
-      <NewGoal />
+    <span class="max-w-[96rem] h-auto w-full flex flex-wrap sm:flex-row sm:flex-wrap gap-8 overflow-y-auto">
+      <Goal v-for="goal in savingsData" :key="goal.id" :goal="goal" @action="fetchSavings"/>
+      <NewGoal @post-goal="fetchSavings"/>
     </span>
-    
   </div>
 </template>

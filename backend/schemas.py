@@ -69,7 +69,7 @@ class NewSavings(BaseModel):
   current_amount: float
   cover: str
   finished: int
-  creation_date: date
+  creation_date: str
   user_id: int
 
 class UpdateGoalCurrentAmount(BaseModel):
