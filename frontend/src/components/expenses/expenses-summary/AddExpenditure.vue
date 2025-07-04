@@ -18,7 +18,6 @@ const data = ref({
 const emit = defineEmits(["after-submit"]);
 
 const postNewExpenditure = async() => {
-  console.table(data.value);
   try {
     const response = await fetch("http://localhost:8000/transactions/new_expenditure/", {
       method: "POST",

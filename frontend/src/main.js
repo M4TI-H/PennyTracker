@@ -6,14 +6,14 @@ import App from './App.vue'
 import Dashboard from './pages/Dashboard.vue';
 import Expenses from './pages/Expenses.vue';
 import Savings from './pages/Savings.vue';
-import Incomes from './pages/Incomes.vue';
+import Options from './pages/Options.vue';
 import Login from './pages/Login.vue';
 
 const routes = [
   { path: "/", component: Dashboard},
   { path: "/expenses", component: Expenses},
   { path: "/savings", component: Savings},
-  { path: "/incomes", component: Incomes},
+  { path: "/options", component: Options},
   { path: "/login", component: Login},
 ];
 

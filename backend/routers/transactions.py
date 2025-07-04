@@ -195,3 +195,39 @@ def fetch_by_method(db: Session = Depends(get_db), user_id: int = Query(), month
   total_result = db.execute(total_query).scalar_one_or_none() 
 
   return { "expenses": expenses, "total": total_result}
+
+#add new category
+@router.post("/new_category/")
+def post_new_category(category_data: schemas.NewExpenseCategory, db: Session = Depends(get_db)):
+  print(category_data)
+  name = category_data.name
+
+  if not name or name.isspace() or name == "":
+    raise HTTPException(status_code=400, detail="Please select correct category name.")
+
+  query = sa.insert(expense_category).values(**category_data.model_dump())
+  db.execute(query)
+  db.commit()
+
+#delete category and clear all transactions of this type
+@router.delete("/delete_category/")
+def delete_category(db: Session = Depends(get_db), user_id: int = Query(), category_id: int = Query()):
+  query1 = sa.delete(
+    transactions
+  ).where(
+    transactions.c.category == category_id,
+    transactions.c.user_id == user_id
+  )
+
+  db.execute(query1)
+  db.commit()
+
+  query2 = sa.delete(
+      expense_category
+    ).where(
+      expense_category.c.id == category_id,
+      expense_category.c.user_id == user_id
+    )
+    
+  db.execute(query2)
+  db.commit()

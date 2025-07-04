@@ -34,6 +34,10 @@ class ExpenseCategory(BaseModel):
   class Config:
     from_attributes = True
 
+class NewExpenseCategory(BaseModel):
+  name: str
+  user_id: int
+
 class Subscription(BaseModel):
   id: int
   service: str

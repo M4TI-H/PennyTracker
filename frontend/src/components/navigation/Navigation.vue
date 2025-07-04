@@ -40,12 +40,12 @@ const mediumW = 768;
           <i class="pi pi-wallet"></i>Savings
         </span>
         </RouterLink>
-        <RouterLink tag="button" to="/incomes" class="w-full h-1/10 bg-none hover:bg-[#3A5A40]
+        <RouterLink tag="button" to="/options" class="w-full h-1/10 bg-none hover:bg-[#3A5A40]
           transition ease-in-out duration-200 hover:cursor-pointer
           text-sm font-semibold text-neutral-800 flex justify-center gap-2"
         >
           <span class="w-[50%] flex justify-between items-center">
-            <i class="pi pi-money-bill "></i>Incomes
+            <i class="pi pi-cog"></i>Options
           </span>
         </RouterLink>
         <RouterLink tag="button" to="/login" class="w-full h-1/10 bg-none hover:bg-[#3A5A40]
