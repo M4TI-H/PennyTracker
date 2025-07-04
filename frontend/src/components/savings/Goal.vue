@@ -134,7 +134,6 @@ watch(() => goal?.id, (newGoalId) => {
       <i class="pi pi-star-fill w-[10%] text-4xl text-center" :style="{ color: goal.cover }"></i>
       <span class="flex justify-between w-[90%] h-full">
         <p class="text-2xl font-bold mt-1" :style="{ color: goal.cover }">{{ goal.title }}</p>
-        
       </span>
     </div>
     

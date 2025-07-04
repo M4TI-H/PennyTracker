@@ -1,13 +1,11 @@
 <script setup>
 import { ref } from "vue";
+import formatDate from "@/composables/formatDate";
+
 defineProps({
   expenseCategories: Array,
   paymentMethods: Array
 });
-
-function formatDate(date) {
-  return date.toISOString().split('T')[0];
-}
 
 const data = ref({
   name: "",
@@ -32,7 +30,7 @@ const postNewExpenditure = async() => {
         amount: data.value.amount ? parseFloat(data.value.amount) : 0,
         method: data.value.method, 
         category: data.value.category ? parseInt(data.value.category) : -1,
-        date: formatDate(new Date()),
+        date: formatDate(new Date()).slice(0, 10),
         user_id: data.value.user_id
       })
     });

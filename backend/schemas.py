@@ -24,7 +24,7 @@ class NewTransaction(BaseModel):
   amount: float
   method: str
   category: int
-  date: date
+  date: str
   user_id: int
 
 class ExpenseCategory(BaseModel):
@@ -48,7 +48,7 @@ class NewSubscription(BaseModel):
   service: str
   amount: float
   frequency: str
-  start_date: date
+  start_date: str
   user_id: int
 
 class Savings(BaseModel):

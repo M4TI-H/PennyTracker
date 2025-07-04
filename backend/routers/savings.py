@@ -186,7 +186,8 @@ def delete_goal(db: Session = Depends(get_db), user_id: int = Query(), goal_id: 
     savings_action
   ).where(
     savings_action.c.goal_id == goal_id,
-    savings_action.c.user_id == user_id
+    savings_action.c.user_id == user_id,
+    
   )
 
   db.execute(query1)
@@ -201,3 +202,38 @@ def delete_goal(db: Session = Depends(get_db), user_id: int = Query(), goal_id: 
 
   db.execute(query2)
   db.commit()
+
+#total savings this month
+@router.get("/this_month_sum/")
+def monthly_sum(db: Session = Depends(get_db), user_id: int = Query(), month: str = Query()):
+  
+  date_pattern = f"%/{month}/%"
+
+  query_deposits = sa.select(
+    sa.func.sum(savings_action.c.amount)
+  ).where(
+    savings_action.c.type == "deposit",
+    savings_action.c.date.like(date_pattern),
+    savings_action.c.user_id == user_id,
+  )
+
+  deposit_sum = db.execute(query_deposits).scalar_one_or_none()
+
+  query_withdrawals = sa.select(
+    sa.func.sum(savings_action.c.amount)
+  ).where(
+    savings_action.c.type == "withdraw",
+    savings_action.c.date.like(date_pattern),
+    savings_action.c.user_id == user_id,
+  )
+
+  withdrawal_sum = db.execute(query_withdrawals).scalar_one_or_none()
+
+  if deposit_sum and withdrawal_sum:
+      return deposit_sum - withdrawal_sum
+  elif deposit_sum and not withdrawal_sum:
+    return deposit_sum
+  elif not deposit_sum and withdrawal_sum:
+    return -1 * withdrawal_sum
+  else:
+    return 0

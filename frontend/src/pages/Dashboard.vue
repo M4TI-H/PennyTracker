@@ -1,27 +1,55 @@
 <script setup>
-  import { ref, watchEffect, onMounted } from "vue";
-  import Navigation from "@/components/navigation/Navigation.vue";
-  import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
-  import NameCard from "@/components/dashboard/NameCard.vue";
-  import AccountState from "@/components/dashboard/AccountState.vue";
-  import PiggyBank from "@/components/dashboard/PiggyBank.vue";
-  import ExpensesSummary from "@/components/dashboard/ExpensesSummary.vue";
+import { ref, watchEffect, onMounted } from "vue";
+import Navigation from "@/components/navigation/Navigation.vue";
+import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
+import NameCard from "@/components/dashboard/NameCard.vue";
+import AccountState from "@/components/dashboard/AccountState.vue";
+import PiggyBank from "@/components/dashboard/PiggyBank.vue";
+import ExpensesSummary from "@/components/dashboard/ExpensesSummary.vue";
 
-  const screenWidth = ref(window.innerWidth);
-  const screenHeight = ref(window.innerHeight);
-  const smallW = 640;
+const screenWidth = ref(window.innerWidth);
+const screenHeight = ref(window.innerHeight);
+const smallW = 640;
 
-  watchEffect(async () => {
-    const handleResize = () => screenWidth.value = window.innerWidth;
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  });
+watchEffect(async () => {
+  const handleResize = () => screenWidth.value = window.innerWidth;
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+});
 
-  watchEffect(async() => {
-    const handleResize = () => screenHeight.value = window.innerHeight;
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  });
+watchEffect(async() => {
+  const handleResize = () => screenHeight.value = window.innerHeight;
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+});
+
+const totalMonthlySavings = ref(0);
+const month = ref("");
+
+const fetchTotalMonthlySavings = async (user_id, month) => {
+  try {
+    const url = new URL("http://localhost:8000/savings/this_month_sum/");
+    url.searchParams.append("user_id", user_id);
+    url.searchParams.append("month", month);
+    
+    const response = await fetch(url.toString());
+
+    if (!response.ok) {
+      throw new Error (`HTTP error! Status: ${response.status}`);
+    }
+
+    totalMonthlySavings.value = await response.json();
+  }
+  catch (error) {
+    console.error(`An error has occured while fetching savings data: ${error}`);
+  }
+}
+
+onMounted(async() => {
+  month.value = (new Date().getMonth() + 1).toString().padStart(2, "0");
+  await fetchTotalMonthlySavings(2, month.value);
+});
+
 </script>
 
 <template>
@@ -44,7 +72,7 @@
         <div class="max-w-[50%] sm:max-w-[60%] w-full sm:min-w-128 sm:h-96 bg-[#E9ECEF] p-4 rounded-xl shadow-xl">
           <p>Some chart here</p>
         </div>
-        <PiggyBank :screenWidth="screenWidth"/>
+        <PiggyBank :screenWidth="screenWidth" :totalMonthlySavings="totalMonthlySavings"/>
       </span>
       
     </span>

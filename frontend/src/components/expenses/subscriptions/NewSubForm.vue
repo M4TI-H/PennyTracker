@@ -1,16 +1,12 @@
 <script setup>
 import { ref } from "vue";
+import formatDate from "@/composables/formatDate";
+
 defineProps({
   displayForm: Boolean,
 });
 
 const emit = defineEmits(["close", "after-submit"]);
-
-const closeForm = () => {
-  emit("close");
-}
-
-const frequencies = ["Daily", "Weekly", "Monthly", "Annually"];
 
 const data = ref({
   service: undefined,
@@ -19,6 +15,20 @@ const data = ref({
   frequency: undefined,
   user_id: 2
 });
+
+const closeForm = () => {
+  data.value = {
+    service: undefined,
+    amount: null,
+    start_date: undefined,
+    frequency: undefined,
+    user_id: 2
+  }
+
+  emit("close");
+}
+
+const frequencies = ["Daily", "Weekly", "Monthly", "Annually"];
 
 const postNewSubscription = async() => {
   console.table(data.value);
@@ -31,7 +41,7 @@ const postNewSubscription = async() => {
       body: JSON.stringify({
         service: data.value.service, 
         amount: parseFloat(data.value.amount), 
-        start_date: data.value.start_date, 
+        start_date: formatDate(data.value.start_date).slice(0, 10),
         frequency: data.value.frequency,
         user_id: data.value.user_id
       })
