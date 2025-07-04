@@ -1,5 +1,6 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
+import formatDate from '@/composables/formatDate';
 
 const props = defineProps({
   showWithdraw: Boolean,
@@ -15,10 +16,6 @@ const action = computed(() => {
   else if (props.showWithdraw) return 'withdraw';
   else return null;
 });
-
-function formatDate(date) {
-  return date.toISOString().split('T')[0];
-}
 
 const postNewGoalAction = async() => {
   const inputAmount = parseFloat(amount.value);

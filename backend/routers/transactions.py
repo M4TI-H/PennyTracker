@@ -3,7 +3,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Session
 from typing import List
 import schemas
-from models import transactions, expense_category
+from models import transactions, expense_category, subscriptions
 from db import get_db
 
 router = APIRouter(prefix="/transactions", tags=["transactions"])

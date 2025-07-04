@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from "vue";
+import { onUpdated, ref, watch } from "vue";
 import ActionForm from "./ActionForm.vue";
 
 const { goal } = defineProps({
@@ -11,6 +11,8 @@ const emit = defineEmits(["refresh"]);
 const displayButtons = ref(true);
 const showDeposit = ref(false);
 const showWithdraw = ref(false);
+
+const goalPercentage = ref("0%");
 
 const actionsData = ref([]);
 
@@ -49,7 +51,7 @@ const depositFunds = async(goal, amount, type) => {
     const result = await response.json();
 
     if (result.status === "success"){
-      emit("action");
+      emit("refresh");
     }
     else {
       console.error(`Backend error: ${result.detail}`)
@@ -105,7 +107,13 @@ const handleActionPost = (amount, action) => {
   depositFunds(goal, amount, action);
   hideInput();
 }
-  
+
+
+
+onUpdated(() => {
+  const percentage = (goal.current_amount / goal.goal_amount) * 100;
+  goalPercentage.value = `${percentage}%`;
+});
 
 watch(() => goal?.id, (newGoalId) => {
   if (newGoalId) {
@@ -150,8 +158,12 @@ watch(() => goal?.id, (newGoalId) => {
       <ActionForm :showDeposit="showDeposit" :showWithdraw="showWithdraw" :goal="goal"
       @close="hideInput" @post-action="({amount, action}) => handleActionPost(amount, action)"/>
     </div>
-    <div class="w-full h-[30%] flex flex-col">
+    <div class="w-full h-[30%] flex flex-col gap-1">
       <p class="text-2xl font-semibold text-neutral-800 self-end" :class="{'line-through': goal.finished === 1}">${{ goal.current_amount }} / ${{ goal.goal_amount }}</p>
+      <div class="w-full h-3 rounded-md bg-neutral-400">
+        <div class="h-3 rounded-md" :style="{backgroundColor: goal.cover, width: goalPercentage }"></div>
+      </div>
     </div>
+    <p class="absolute left-5 bottom-2 text-sm text-neutral-400 font-semibold">{{ goal.creation_date }}</p>
   </div>
 </template>

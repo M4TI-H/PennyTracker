@@ -91,6 +91,6 @@ class GoalAction(BaseModel):
 class NewGoalAction(BaseModel):
   type: str
   amount: float
-  date: date
+  date: str
   goal_id: int
   user_id: int
