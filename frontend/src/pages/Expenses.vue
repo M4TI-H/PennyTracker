@@ -24,14 +24,9 @@ watchEffect(async() => {
   return () => window.removeEventListener("resize", handleResize);
 });
 
-const paymentMethods = [
-  {id: 0, name: "PayPal"},
-  {id: 1, name: "Cash"},
-  {id: 2, name: "Bank"},
-];
-
 const showAllExpenses = ref(false);
 const expenseCategories = ref([]);
+const accountsData = ref([]);
 
 const fetchExpenseCategories = async() => {
   try {
@@ -46,6 +41,23 @@ const fetchExpenseCategories = async() => {
   }
 }
 
+const fetchAccounts = async(user) => {
+  try {
+    const url = new URL("http://localhost:8000/transactions/fetch_accounts");
+    url.searchParams.append("user_id", user);
+    
+    const response = await fetch(url.toString());
+
+    if (!response.ok) {
+      throw new Error (`HTTP error! Status: ${response.status}`);
+    }
+    accountsData.value = await response.json();
+  }
+  catch (error) {
+    console.error(`An error has occured while fetching accounts data: ${error}`);
+  }
+}
+
 const recentTransactionsComponent = ref(null);
 const transactionsByCategory = ref(null);
 const refreshTransactions = () => {
@@ -53,7 +65,10 @@ const refreshTransactions = () => {
   transactionsByCategory.value?.refreshData();
 };
 
-watchEffect(() => fetchExpenseCategories());
+watchEffect(() => {
+  fetchExpenseCategories(),
+  fetchAccounts(2)
+});
 </script>
 <template>
   <div class="fixed flex w-full h-full justify-center gap-16 bg-[#DAD7CD] sm:py-16 ">
@@ -62,7 +77,7 @@ watchEffect(() => fetchExpenseCategories());
     <CompactNavigation v-else/>
     <span class="max-w-[96rem] h-auto w-full flex flex-col sm:flex-row sm:flex-wrap items-center justify-between sm:items-start">
       <div class="sm:max-w-[100%] w-full sm:min-w-128 sm:h-[54%] flex items-center bg-[#E9ECEF] p-4 rounded-xl shadow-xl">
-        <AddExpenditure :expenseCategories="expenseCategories" :paymentMethods="paymentMethods" @after-submit="refreshTransactions"/>
+        <AddExpenditure :expenseCategories="expenseCategories" :accountsData="accountsData" @after-submit="refreshTransactions"/>
         <div class="ml-4 w-[3px] h-[96%] bg-neutral-300"></div>
         <ExpensesChart ref="transactionsByCategory"/>
       </div>

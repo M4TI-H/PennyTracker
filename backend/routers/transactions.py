@@ -3,13 +3,13 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Session
 from typing import List
 import schemas
-from models import transactions, expense_category, subscriptions
+from models import transactions, expense_category, accounts
 from db import get_db
 
 router = APIRouter(prefix="/transactions", tags=["transactions"])
 
 #fetch expense categories
-@router.get("/expense_categories/", response_model=List[schemas.ExpenseCategory])
+@router.get("/expense_categories/")
 def get_expense_categories(db: Session = Depends(get_db)):
   query = sa.select(expense_category)
   result = db.execute(query)
@@ -17,35 +17,46 @@ def get_expense_categories(db: Session = Depends(get_db)):
   return [dict(row._mapping) for row in rows]
 
 #fetch recent transactions, ordered by date
-@router.get("/fetch_recent/", response_model=List[schemas.Transaction])
+@router.get("/fetch_recent/")
 def get_recent_transactions(db: Session = Depends(get_db)):
   query = sa.select(
     transactions,
-    expense_category.c.name.label("category_name")
+    expense_category.c.name.label("category_name"),
+    accounts.c.name.label("method_name")
   ).join(
     expense_category,
     transactions.c.category == expense_category.c.id
+  ).join(
+    accounts,
+    transactions.c.method == accounts.c.id,
   ).order_by(
     transactions.c.date.desc()
   ).limit(4)
+
   result = db.execute(query)
   rows = result.all()
   return [dict(row._mapping) for row in rows]
 
 #fetch all transactions
-@router.get("/fetch_all/", response_model=List[schemas.Transaction])
+@router.get("/fetch_all/")
 def get_all_transactions(db: Session = Depends(get_db)):
   query = sa.select(
     transactions,
-    expense_category.c.name.label("category_name")
+    expense_category.c.name.label("category_name"),
+    accounts.c.name.label("method_name")
   ).join(
     expense_category,
     transactions.c.category == expense_category.c.id
+  ).join(
+    accounts,
+    transactions.c.method == accounts.c.id,
   ).order_by(
     transactions.c.date.desc()
   )
+  
   result = db.execute(query)
   rows = result.all()
+  
   return [dict(row._mapping) for row in rows]
 
 #insert new transaction
@@ -63,7 +74,7 @@ def post_new_expenditure(transaction_data: schemas.NewTransaction, db: Session =
   if amount is None or amount <= 0:
     raise HTTPException(status_code=400, detail="Please input correct amount.")
   
-  if not method or method.isspace():
+  if method == -1:
     raise HTTPException(status_code=400, detail="Please select the payment method.")
 
   if category == -1:
@@ -89,15 +100,18 @@ def delete_transaction(db: Session = Depends(get_db), user_id: int = Query(), tr
 #fetch data summarized for categories filtered by month
 @router.get("/fetch_by_category")
 def fetch_by_category(db: Session = Depends(get_db), user_id: int = Query(), month: str = Query()):
-  date_pattern = f"%-{month}-%"
+  date_pattern = f"%/{month}/%"
 
   query = sa.select(
     expense_category.c.name,
-    transactions.c.method,
-    sa.func.sum(transactions.c.amount)
+    accounts.c.name.label("method_name"),
+    sa.func.sum(transactions.c.amount),
   ).join(
     transactions,
     transactions.c.category == expense_category.c.id
+  ).join(
+    accounts,
+    transactions.c.method == accounts.c.id,
   ).where(
     transactions.c.user_id == user_id,
     transactions.c.date.like(date_pattern)
@@ -105,7 +119,7 @@ def fetch_by_category(db: Session = Depends(get_db), user_id: int = Query(), mon
     expense_category.c.name,
     transactions.c.method
   )
-  
+
   result = db.execute(query)
   rows = result.all()
   
@@ -144,15 +158,18 @@ def fetch_by_category(db: Session = Depends(get_db), user_id: int = Query(), mon
 #fetch data summarized for method filtered by month
 @router.get("/fetch_by_method")
 def fetch_by_method(db: Session = Depends(get_db), user_id: int = Query(), month: str = Query()):
-  date_pattern = f"%-{month}-%"
+  date_pattern = f"%/{month}/%"
 
   query = sa.select(
     expense_category.c.name,
-    transactions.c.method,
+    accounts.c.name.label("method_name"),
     sa.func.sum(transactions.c.amount)
   ).join(
     transactions,
     transactions.c.category == expense_category.c.id
+  ).join(
+    accounts,
+    transactions.c.method == accounts.c.id,
   ).where(
     transactions.c.user_id == user_id,
     transactions.c.date.like(date_pattern)
@@ -199,7 +216,6 @@ def fetch_by_method(db: Session = Depends(get_db), user_id: int = Query(), month
 #add new category
 @router.post("/new_category/")
 def post_new_category(category_data: schemas.NewExpenseCategory, db: Session = Depends(get_db)):
-  print(category_data)
   name = category_data.name
 
   if not name or name.isspace() or name == "":
@@ -223,11 +239,59 @@ def delete_category(db: Session = Depends(get_db), user_id: int = Query(), categ
   db.commit()
 
   query2 = sa.delete(
-      expense_category
-    ).where(
-      expense_category.c.id == category_id,
-      expense_category.c.user_id == user_id
-    )
+    expense_category
+  ).where(
+    expense_category.c.id == category_id,
+    expense_category.c.user_id == user_id
+  )
+    
+  db.execute(query2)
+  db.commit()
+
+#fetch all accounts
+@router.get("/fetch_accounts/", response_model=List[schemas.Account])
+def fetch_accounts(db: Session = Depends(get_db), user_id: int = Query()):
+  query = sa.select(
+    accounts
+  ).where(
+    accounts.c.user_id == user_id
+  )
+
+  result = db.execute(query)
+  rows = result.all()
+  return [dict(row._mapping) for row in rows]
+
+#create new account 
+@router.post("/new_account/")
+def add_new_account(account_data: schemas.NewAccount, db: Session = Depends(get_db)):
+  name = account_data.name
+
+  if not name or name.isspace() or name == "":
+    raise HTTPException(status_code=400, detail="Please select correct account name.")
+  
+  query = sa.insert(accounts).values(**account_data.model_dump())
+  db.execute(query)
+  db.commit()
+
+#delete account with all its transactions
+@router.delete("/delete_account/")
+def delete_account(db: Session = Depends(get_db), user_id: int = Query(), account_id: int = Query()):
+  query1 = sa.delete(
+    transactions
+  ).where(
+    transactions.c.method == account_id,
+    transactions.c.user_id == user_id
+  )
+
+  db.execute(query1)
+  db.commit()
+
+  query2 = sa.delete(
+    accounts
+  ).where(
+    accounts.c.id == account_id,
+    accounts.c.user_id == user_id
+  )
     
   db.execute(query2)
   db.commit()

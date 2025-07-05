@@ -43,8 +43,6 @@ const fetchExpensesByMethod = async (user, month) => {
     const fetchedData = await response.json();
     expenses.value = fetchedData.expenses;
     totalExpenses.value = fetchedData.total;
-    console.log('Fetched expenses:', expenses.value);
-    console.log('Total:', totalExpenses.value);
   }
   catch (error) {
     console.error(`An error has occured while fetching categories data: ${error}`);
@@ -111,7 +109,7 @@ defineExpose({
       </div>
       <ExpensesData :expenses="expenses" :filter="selectedFilter"/>
 
-      <p v-if="totalExpenses" class="text-lg text-neutral-800 font-semibold ml-8 mt-2">Total: ${{ totalExpenses }}</p>
+      <p v-if="totalExpenses" class="text-lg text-neutral-800 font-semibold ml-8 mt-2">Total: ${{ parseFloat(totalExpenses).toFixed(2) }}</p>
       <p v-else class="text-lg text-neutral-800 font-semibold ml-8 mt-2">No data</p>
     </div>
   </div>

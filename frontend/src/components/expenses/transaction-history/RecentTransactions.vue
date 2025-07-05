@@ -13,12 +13,13 @@ const isFull = computed(() => transactionsData.value.length === 4);
 
 const fetchRecentTransactions = async() => {
   try {
-    const response = await fetch("http://localhost:8000/transactions/fetch_recent");
+    const response = await fetch("http://localhost:8000/transactions/fetch_recent/");
     if (!response.ok) {
       throw new Error (`HTTP error! Status: ${response.status}`);
     }
 
     transactionsData.value = await response.json();
+    console.log(transactionsData.value);
   }
   catch (error) {
     console.error(`An error has occured while fetching transactions data: ${error}`);

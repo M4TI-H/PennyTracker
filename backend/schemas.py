@@ -12,7 +12,7 @@ class Transaction(BaseModel):
   id: int
   name: str
   amount: float
-  method: str
+  method_name: str
   category_name: str
   date: str
   user_id: int
@@ -22,7 +22,7 @@ class Transaction(BaseModel):
 class NewTransaction(BaseModel):
   name: str
   amount: float
-  method: str
+  method: int
   category: int
   date: str
   user_id: int
@@ -38,6 +38,21 @@ class NewExpenseCategory(BaseModel):
   name: str
   user_id: int
 
+class Account(BaseModel):
+  id: int
+  name: str
+  balance: float
+  allow_negative: bool
+  user_id: int
+  class Config:
+    from_attributes = True
+
+class NewAccount(BaseModel):
+  name: str
+  balance: float
+  allow_negative: bool
+  user_id: int
+  
 class Subscription(BaseModel):
   id: int
   service: str

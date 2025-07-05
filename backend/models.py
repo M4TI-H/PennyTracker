@@ -14,7 +14,7 @@ transactions  = sa.Table(
   sa.Column("id", sa.Integer, primary_key=True, index=True),
   sa.Column("name", sa.String(255)),
   sa.Column("amount", sa.Float),
-  sa.Column("method", sa.String(255)),
+  sa.Column("method", sa.Integer, index=True),
   sa.Column("category", sa.Integer, index=True),
   sa.Column("date", sa.String(255)),
   sa.Column("user_id", sa.Integer, index=True),
@@ -25,6 +25,15 @@ expense_category = sa.Table(
   sa.Column("id", sa.Integer, primary_key=True, index=True),
   sa.Column("name", sa.String(255)),
   sa.Column("user_id", sa.Integer, index=True),
+)
+
+accounts = sa.Table(
+  "accounts", metadata,
+  sa.Column("id", sa.Integer, primary_key=True, index=True),
+  sa.Column("name", sa.String(255)),
+  sa.Column("balance", sa.Float),
+  sa.Column("allow_negative", sa.Boolean),
+  sa.Column("user_id", sa.Integer, index=True)
 )
 
 subscriptions = sa.Table(

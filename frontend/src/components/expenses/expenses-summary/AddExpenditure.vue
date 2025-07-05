@@ -4,20 +4,20 @@ import formatDate from "@/composables/formatDate";
 
 defineProps({
   expenseCategories: Array,
-  paymentMethods: Array
+  accountsData: Array
 });
 
 const data = ref({
   name: "",
   amount: null,
-  method: "",
+  method: null,
   category: null,
-  user_id: 2
 });
 
 const emit = defineEmits(["after-submit"]);
 
-const postNewExpenditure = async() => {
+const postNewExpenditure = async(user_id) => {
+  console.log(data.value)
   try {
     const response = await fetch("http://localhost:8000/transactions/new_expenditure/", {
       method: "POST",
@@ -27,10 +27,10 @@ const postNewExpenditure = async() => {
       body: JSON.stringify({
         name: data.value.name, 
         amount: data.value.amount ? parseFloat(data.value.amount) : 0,
-        method: data.value.method, 
+        method: data.value.method ? parseInt(data.value.method) : -1, 
         category: data.value.category ? parseInt(data.value.category) : -1,
         date: formatDate(new Date()).slice(0, 10),
-        user_id: data.value.user_id
+        user_id: user_id
       })
     });
 
@@ -42,7 +42,7 @@ const postNewExpenditure = async() => {
     data.value = {
       name: "",
       amount: null,
-      method: "",
+      method: null,
       category: null,
       user_id: 2
     };
@@ -70,7 +70,7 @@ const postNewExpenditure = async() => {
       <select class="w-[60%] h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
         v-model="data.method"
       >
-        <option v-for="method in paymentMethods" :key="method.id">{{ method.name }}</option>
+        <option v-for="method in accountsData" :key="method.id" :value="method.id">{{ method.name }}</option>
       </select>
     </span>
     <span class="w-[70%] h-10 flex justify-between items-center">
@@ -81,7 +81,7 @@ const postNewExpenditure = async() => {
         <option :value="category.id" v-for="category in expenseCategories" :key="category.id">{{ category.name }}</option>
       </select>
     </span>
-    <button @click="postNewExpenditure"
+    <button @click="postNewExpenditure(2)"
       class="w-[50%] h-10 rounded-3xl bg-neutral-800 text-sm text-[#E9ECEF]
     border-neutral-800 border-2 hover:cursor-pointer hover:bg-[#588157]
       transition ease-in-out duration-200">Confirm</button>

@@ -12,8 +12,8 @@ defineProps({
     transition ease-in-out duration-200">
     <p class="text-md sm:text-xl text-[#212529] font-semibold">{{ account }}</p>
     <span class="flex items-end">
-      <p class="text-2xl sm:text-4xl text-[#212529] font-bold mt-4">${{ balance.substr(0, balance.length-3) }}</p>
-      <p class="text-md sm:text-xl text-[#212529] font-semibold mt-4">{{ balance.substr(-3) }}</p>
+      <p class="text-2xl sm:text-4xl text-[#212529] font-bold mt-4">${{ balance.slice(0, -3) }}</p>
+      <p class="text-md sm:text-xl text-[#212529] font-semibold mt-4">{{ balance.slice(-3) }}</p>
     </span>
   </div>
 </template>
