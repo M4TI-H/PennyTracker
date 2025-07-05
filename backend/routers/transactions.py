@@ -252,13 +252,18 @@ def delete_category(db: Session = Depends(get_db), user_id: int = Query(), categ
 @router.get("/fetch_accounts/", response_model=List[schemas.Account])
 def fetch_accounts(db: Session = Depends(get_db), user_id: int = Query()):
   query = sa.select(
-    accounts
+    accounts,
+    sa.func.coalesce(sa.func.sum(transactions.c.amount), 0).label("expenses"),
+  ).outerjoin(
+    transactions,
+    transactions.c.method == accounts.c.id
   ).where(
-    accounts.c.user_id == user_id
+    accounts.c.user_id == user_id,
+  ).group_by(
+    accounts.c.id,
   )
 
-  result = db.execute(query)
-  rows = result.all()
+  rows = db.execute(query).all()
   return [dict(row._mapping) for row in rows]
 
 #create new account 
@@ -295,3 +300,26 @@ def delete_account(db: Session = Depends(get_db), user_id: int = Query(), accoun
     
   db.execute(query2)
   db.commit()
+
+#fetch all transactions and group by month
+@router.get("/monthly_transactions/", response_model=List[schemas.MonthlyTransactions])
+def get_monthly_transactions(db: Session = Depends(get_db), user_id: int = Query()):
+
+  date_parsed = sa.func.str_to_date(transactions.c.date, '%d/%m/%Y')
+
+  query = sa.select(
+    sa.func.date_format(date_parsed, '%Y-%m').label("month"),
+    sa.func.sum(transactions.c.amount).label("total_expenses"),
+    sa.func.count().label("number_of_transactions")
+  ).group_by(
+    sa.func.date_format(date_parsed, '%Y-%m')
+  ).where(
+    transactions.c.user_id == user_id
+  ).order_by(
+    sa.func.date_format(date_parsed, '%Y-%m').desc()
+  )
+  
+  result = db.execute(query)
+  rows = result.all()
+  print(rows)
+  return [dict(row._mapping) for row in rows]

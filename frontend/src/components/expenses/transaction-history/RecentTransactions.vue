@@ -19,7 +19,6 @@ const fetchRecentTransactions = async() => {
     }
 
     transactionsData.value = await response.json();
-    console.log(transactionsData.value);
   }
   catch (error) {
     console.error(`An error has occured while fetching transactions data: ${error}`);

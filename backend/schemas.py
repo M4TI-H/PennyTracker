@@ -27,6 +27,13 @@ class NewTransaction(BaseModel):
   date: str
   user_id: int
 
+class MonthlyTransactions(BaseModel):
+  month: str
+  total_expenses: float
+  number_of_transactions: int
+  class Config:
+    from_attributes = True
+
 class ExpenseCategory(BaseModel):
   id: int
   name: str
@@ -41,16 +48,13 @@ class NewExpenseCategory(BaseModel):
 class Account(BaseModel):
   id: int
   name: str
-  balance: float
-  allow_negative: bool
   user_id: int
+  expenses: float
   class Config:
     from_attributes = True
 
 class NewAccount(BaseModel):
   name: str
-  balance: float
-  allow_negative: bool
   user_id: int
   
 class Subscription(BaseModel):

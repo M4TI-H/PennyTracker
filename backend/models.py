@@ -31,8 +31,6 @@ accounts = sa.Table(
   "accounts", metadata,
   sa.Column("id", sa.Integer, primary_key=True, index=True),
   sa.Column("name", sa.String(255)),
-  sa.Column("balance", sa.Float),
-  sa.Column("allow_negative", sa.Boolean),
   sa.Column("user_id", sa.Integer, index=True)
 )
 
