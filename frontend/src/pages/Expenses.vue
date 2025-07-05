@@ -7,22 +7,10 @@ import Subscriptions from "../components/expenses/subscriptions/Subscriptions.vu
 import RecentTransactions from "../components/expenses/transaction-history/RecentTransactions.vue";
 import AllTransactions from "../components/expenses/transaction-history/AllTransactions.vue";
 import ExpensesChart from "../components/expenses/expenses-summary/ExpensesChart.vue";
+import useScreenSize from "@/composables/screenSize";
 
-const screenWidth = ref(window.innerWidth);
-const screenHeight = ref(window.innerHeight);
 const smallW = 640;
-
-watchEffect(async () => {
-  const handleResize = () => screenWidth.value = window.innerWidth;
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-});
-
-watchEffect(async() => {
-  const handleResize = () => screenHeight.value = window.innerHeight;
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-});
+const {screenWidth, screenHeight} = useScreenSize();
 
 const showAllExpenses = ref(false);
 const expenseCategories = ref([]);

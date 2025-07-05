@@ -7,22 +7,10 @@ import PiggyBank from "@/components/dashboard/PiggyBank.vue";
 import ExpensesSummary from "@/components/dashboard/ExpensesSummary.vue";
 import AccountView from "@/components/options/AccountView.vue";
 import fetchAccounts from "@/composables/fetchAccounts.js";
+import useScreenSize from "@/composables/screenSize";
 
-const screenWidth = ref(window.innerWidth);
-const screenHeight = ref(window.innerHeight);
 const smallW = 640;
-
-watchEffect(async () => {
-  const handleResize = () => screenWidth.value = window.innerWidth;
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-});
-
-watchEffect(async() => {
-  const handleResize = () => screenHeight.value = window.innerHeight;
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-});
+const {screenWidth, screenHeight} = useScreenSize();
 
 const totalMonthlySavings = ref(0);
 const month = ref("");
@@ -76,7 +64,7 @@ onMounted(async() => {
 const accountsData = ref([]);
 watchEffect(async () => {
   accountsData.value = await fetchAccounts(2);
-})
+});
 
 </script>
 

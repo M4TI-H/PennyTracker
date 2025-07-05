@@ -1,5 +1,7 @@
 <script setup>
+import useScreenSize from '@/composables/screenSize';
 
+const {screenWidth, screenHeight} = useScreenSize();
 </script>
 
 <template>

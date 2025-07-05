@@ -40,11 +40,12 @@ const deleteAccount = async (account_id, user_id) => {
         ><i class="pi pi-trash"></i></button>
       </div>
     </span>
+    <p class="text-xs text-neutral-400 mt-4">Spent this month</p>
     <span class="flex items-end justify-end h-10">
-      <p class="text-2xl sm:text-4xl text-[#212529] font-bold mt-4">
+      <p class="text-2xl sm:text-4xl text-[#212529] font-bold">
         ${{ parseFloat(account.expenses).toFixed(2).split('.')[0] }}
       </p>
-      <p class="text-md sm:text-xl text-[#212529] font-semibold mt-4">
+      <p class="text-md sm:text-xl text-[#212529] font-semibold">
         .{{ parseFloat(account.expenses).toFixed(2).split('.')[1] }}
       </p>
     </span>

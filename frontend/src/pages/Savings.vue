@@ -1,27 +1,15 @@
 <script setup>
-  import { ref, watchEffect, onMounted } from "vue";
-  import Navigation from "@/components/navigation/Navigation.vue";
-  import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
-  import Goal from "@/components/savings/Goal.vue";
-  import NewGoal from "@/components/savings/NewGoal.vue";
+import { ref, onMounted } from "vue";
+import Navigation from "@/components/navigation/Navigation.vue";
+import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
+import Goal from "@/components/savings/Goal.vue";
+import NewGoal from "@/components/savings/NewGoal.vue";
+import useScreenSize from "@/composables/screenSize";
 
-  const screenWidth = ref(window.innerWidth);
-  const screenHeight = ref(window.innerHeight);
-  const smallW = 640;
+const smallW = 640;
+const {screenWidth, screenHeight} = useScreenSize();
 
-  watchEffect(async () => {
-    const handleResize = () => screenWidth.value = window.innerWidth;
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  });
-
-  watchEffect(async() => {
-    const handleResize = () => screenHeight.value = window.innerHeight;
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  });
-
-  const savingsData = ref([]);
+const savingsData = ref([]);
 
 const fetchSavings = async() => {
   try {
