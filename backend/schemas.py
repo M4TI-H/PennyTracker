@@ -34,6 +34,13 @@ class MonthlyTransactions(BaseModel):
   class Config:
     from_attributes = True
 
+class TransactionsCount(BaseModel):
+  id: int
+  date: str
+  number_of_transactions: int
+  class Config:
+    from_attributes = True
+
 class ExpenseCategory(BaseModel):
   id: int
   name: str

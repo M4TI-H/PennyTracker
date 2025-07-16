@@ -8,6 +8,7 @@ import ExpensesSummary from "@/components/dashboard/ExpensesSummary.vue";
 import AccountView from "@/components/options/AccountView.vue";
 import fetchAccounts from "@/composables/fetchAccounts.js";
 import useScreenSize from "@/composables/screenSize";
+import TransactionCount from "@/components/dashboard/TransactionCount.vue";
 
 const smallW = 640;
 const {screenWidth, screenHeight} = useScreenSize();
@@ -35,7 +36,6 @@ const fetchTotalMonthlySavings = async (user_id, month) => {
 }
 
 const monthlyTransactionsData = ref([]);
-
 const fetchTransactionsMonthly = async(user_id) => {
    try {
     const url = new URL("http://localhost:8000/transactions/monthly_transactions/");
@@ -54,18 +54,37 @@ const fetchTransactionsMonthly = async(user_id) => {
   }
 }
 
+const transactionsCountData = ref([]);
+const fetchTransactionsCount = async(user_id) => {
+   try {
+    const url = new URL("http://localhost:8000/transactions/transactions_count/");
+    url.searchParams.append("user_id", user_id);
+    
+    const response = await fetch(url.toString());
+
+    if (!response.ok) {
+      throw new Error (`HTTP error! Status: ${response.status}`);
+    }
+
+    transactionsCountData.value = await response.json();
+    console.table(transactionsCountData.value)
+  }
+  catch (error) {
+    console.error(`An error has occured while fetching transactions data: ${error}`);
+  }
+}
+
 onMounted(async() => {
   month.value = (new Date().getMonth() + 1).toString().padStart(2, "0");
   await fetchTotalMonthlySavings(2, month.value);
   await fetchTransactionsMonthly(2);
-
+  await fetchTransactionsCount(2);
 });
 
 const accountsData = ref([]);
 watchEffect(async () => {
   accountsData.value = await fetchAccounts(2);
 });
-
 </script>
 
 <template>
@@ -84,12 +103,9 @@ watchEffect(async () => {
       </div>
       <ExpensesSummary :monthlyTransactionsData="monthlyTransactionsData"/>
       <span class="flex w-[90%] max-h-[15%] sm:max-h-[50%] h-full gap-4">
-        <div class="max-w-[50%] sm:max-w-[60%] w-full sm:min-w-128 sm:h-96 bg-[#E9ECEF] p-4 rounded-xl shadow-xl">
-          <p>Some chart here</p>
-        </div>
+        <TransactionCount :transactionsCountData="transactionsCountData" />
         <PiggyBank :screenWidth="screenWidth" :totalMonthlySavings="totalMonthlySavings"/>
       </span>
-      
     </span>
   </div>
 </template>

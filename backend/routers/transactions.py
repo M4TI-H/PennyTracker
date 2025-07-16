@@ -304,7 +304,6 @@ def delete_account(db: Session = Depends(get_db), user_id: int = Query(), accoun
 #fetch all transactions and group by month
 @router.get("/monthly_transactions/", response_model=List[schemas.MonthlyTransactions])
 def get_monthly_transactions(db: Session = Depends(get_db), user_id: int = Query()):
-
   date_parsed = sa.func.str_to_date(transactions.c.date, '%d/%m/%Y')
 
   query = sa.select(
@@ -319,6 +318,25 @@ def get_monthly_transactions(db: Session = Depends(get_db), user_id: int = Query
     sa.func.date_format(date_parsed, '%Y-%m').desc()
   )
   
+  result = db.execute(query)
+  rows = result.all()
+  return [dict(row._mapping) for row in rows]
+
+#count transactions by date
+@router.get("/transactions_count/", response_model=List[schemas.TransactionsCount])
+def get_transactions_count(db: Session = Depends(get_db), user_id: int = Query()):
+  query = sa.select(
+    transactions.c.id,
+    transactions.c.date,
+    sa.func.count(transactions.c.id).label("number_of_transactions")
+  ).group_by(
+     transactions.c.date
+  ).where(
+    transactions.c.user_id == user_id
+  ).order_by(
+    transactions.c.date.desc()
+  )
+
   result = db.execute(query)
   rows = result.all()
   print(rows)
