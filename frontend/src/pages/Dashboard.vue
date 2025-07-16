@@ -67,7 +67,6 @@ const fetchTransactionsCount = async(user_id) => {
     }
 
     transactionsCountData.value = await response.json();
-    console.table(transactionsCountData.value)
   }
   catch (error) {
     console.error(`An error has occured while fetching transactions data: ${error}`);
