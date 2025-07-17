@@ -1,14 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import formatDate from "@/composables/formatDate.js";
+import type { NewGoal } from "@/types/savings";
 
-const displayForm = ref(false);
+const displayForm = ref<boolean>(false);
 const emit = defineEmits(["post-goal"]);
 
 const showForm = () => displayForm.value = true;
 const hideForm = () => displayForm.value = false;
 
-const data = ref({
+const newGoalData = ref<NewGoal>({
   title: undefined,
   amount: null,
   cover: "#000000",
@@ -23,13 +24,13 @@ const postNewGoal = async() => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        title: data.value.title, 
-        goal_amount: data.value.amount ? parseFloat(data.value.amount) : -1, 
+        title: newGoalData.value.title, 
+        goal_amount: newGoalData.value.amount ? newGoalData.value.amount : -1, 
         current_amount: 0.0,
-        cover: data.value.cover || "#000000",
+        cover: newGoalData.value.cover || "#000000",
         finished: 0,
         creation_date: formatDate(new Date()),
-        user_id: data.value.user_id
+        user_id: newGoalData.value.user_id
       })
     });
 
@@ -38,7 +39,7 @@ const postNewGoal = async() => {
       throw new Error(err.detail);
     }
     
-    data.value = {
+    newGoalData.value = {
       title: undefined,
       amount: null,
       cover: "#000000",
@@ -58,7 +59,7 @@ const postNewGoal = async() => {
 <template>
   <div @click="showForm" class="w-172 h-64 flex flex-col items-center justify-center 
   bg-[#E9ECEF]/70 hover:bg-[#E9ECEF]/100 rounded-xl shadow-xl border-2 border-neutral-800 border-dashed"
-    :class="{'opacity-100': displayForm}, {'hover:cursor-pointer': !displayForm}">
+    :class="{'hover:cursor-pointer': !displayForm}">
      <p v-if="!displayForm" class="font-semibold text-4xl text-neutral-800">+</p>
      <span v-else class="relative w-full h-full flex flex-col items-center p-4 pb-2">
       <span class="flex w-full h-auto justify-between items-center">
@@ -72,11 +73,11 @@ const postNewGoal = async() => {
         
         <div class="h-[60%] w-full flex">
           <span class="flex flex-col items-center w-[60%] h-full">
-            <input type="text" placeholder="Title of the goal" v-model="data.title"
+            <input type="text" placeholder="Title of the goal" v-model="newGoalData.title"
               class="w-[70%] h-[30%] px-2 border-2 border-neutral-800 rounded-lg text-md 
               font-medium mt-4 outline-0"
             />
-            <input type="number" placeholder="Goal amount" v-model="data.amount"
+            <input type="number" placeholder="Goal amount" v-model="newGoalData.amount"
               class="w-[70%] h-[30%] px-2 border-2 border-neutral-800 rounded-lg text-md
               font-medium mt-4 outline-0"
             />
@@ -84,7 +85,7 @@ const postNewGoal = async() => {
           <span class="flex flex-col items-center justify-center w-[40%]">
             <span class="flex w-[70%] h-[50%] justify-between items-center">
               <label class="text-lg text-neutral-800 font-semibold">Select color</label> 
-              <input type="color" v-model="data.cover"/>
+              <input type="color" v-model="newGoalData.cover"/>
             </span>
             <span class="flex w-[70%] h-[50%] justify-between items-center">
               <label class="text-lg text-neutral-800 font-semibold">Select icon</label> 

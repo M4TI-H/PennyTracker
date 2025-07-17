@@ -1,15 +1,16 @@
-<script setup>
-const props = defineProps({
-  account: Object
-});
+<script setup lang="ts">
+import type { Account } from '@/types/options';
+const { account } = defineProps<{
+  account: Account
+}>();
 
 const emit = defineEmits(["delete"]);
 
-const deleteAccount = async (account_id, user_id) => {
+const deleteAccount = async (account_id: number, user_id: number) => {
   try {
     const url = new URL("http://localhost:8000/transactions/delete_account/");
-    url.searchParams.append("account_id", account_id);
-    url.searchParams.append("user_id", user_id);
+    url.searchParams.append("account_id", account_id.toString());
+    url.searchParams.append("user_id", user_id.toString());
 
     const response = await fetch(url.toString(), {
       method: "DELETE"
@@ -43,10 +44,10 @@ const deleteAccount = async (account_id, user_id) => {
     <p class="text-xs text-neutral-400 mt-4">Spent this month</p>
     <span class="flex items-end justify-end h-10">
       <p class="text-2xl sm:text-4xl text-[#212529] font-bold">
-        ${{ parseFloat(account.expenses).toFixed(2).split('.')[0] }}
+        ${{ account.expenses.toFixed(2).split('.')[0] }}
       </p>
       <p class="text-md sm:text-xl text-[#212529] font-semibold">
-        .{{ parseFloat(account.expenses).toFixed(2).split('.')[1] }}
+        .{{ account.expenses.toFixed(2).split('.')[1] }}
       </p>
     </span>
   </div>

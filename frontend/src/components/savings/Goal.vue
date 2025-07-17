@@ -1,20 +1,17 @@
-<script setup>
+<script setup lang="ts">
 import { onUpdated, ref, watch } from "vue";
 import ActionForm from "./ActionForm.vue";
+import type { GoalType, SavingAction } from "@/types/savings";
 
-const { goal } = defineProps({
-  goal: Object
-});
 
+const { goal } = defineProps<{ goal: GoalType }>();
 const emit = defineEmits(["refresh"]);
 
-const displayButtons = ref(true);
-const showDeposit = ref(false);
-const showWithdraw = ref(false);
-
-const goalPercentage = ref("0%");
-
-const actionsData = ref([]);
+const displayButtons = ref<boolean>(true);
+const showDeposit = ref<boolean>(false);
+const showWithdraw = ref<boolean>(false);
+const goalPercentage = ref<string>("0%");
+const actionsData = ref<SavingAction[]>([]);
 
 const hideInput = () => {
   showDeposit.value = false;
@@ -32,12 +29,12 @@ const displayWithdrawInput = () => {
   displayButtons.value = false;
 }
 
-const depositFunds = async(goal, amount, type) => {
+const depositFunds = async(amount: number, type: string) => {
   try {
     const url = new URL(`http://localhost:8000/savings/${type}/`);
-    url.searchParams.append("user_id", goal.user_id);
-    url.searchParams.append("goal_id", goal.id);
-    url.searchParams.append("amount", amount);
+    url.searchParams.append("user_id", goal.user_id.toString());
+    url.searchParams.append("goal_id", goal.id.toString());
+    url.searchParams.append("amount", amount.toString());
     
     const response = await fetch(url.toString(), {
       method: "PUT"
@@ -62,11 +59,11 @@ const depositFunds = async(goal, amount, type) => {
   }
 }
 
-const fetchSavingActions = async(goal_id, user_id) => {
+const fetchSavingActions = async(goal_id: number, user_id: number) => {
   try {
     const url = new URL("http://localhost:8000/savings/fetch_actions/");
-    url.searchParams.append("user_id", user_id);
-    url.searchParams.append("goal_id", goal_id);
+    url.searchParams.append("user_id", user_id.toString());
+    url.searchParams.append("goal_id", goal_id.toString());
     
     const response = await fetch(url.toString());
 
@@ -81,11 +78,11 @@ const fetchSavingActions = async(goal_id, user_id) => {
   }
 }
 
-const deleteGoal = async(user_id, transaction) => {
+const deleteGoal = async(user_id: number, transaction_id: number) => {
   try {
     const url = new URL("http://localhost:8000/savings/delete_goal/");
-    url.searchParams.append("user_id", user_id);
-    url.searchParams.append("goal_id", transaction);
+    url.searchParams.append("user_id", user_id.toString());
+    url.searchParams.append("goal_id", transaction_id.toString());
 
     const response = await fetch(url.toString(), {
       method: "DELETE"
@@ -102,13 +99,15 @@ const deleteGoal = async(user_id, transaction) => {
   }
 }
 
-const handleActionPost = (amount, action) => {
+const handleActionPost = (amount: number, action: string) => {
   fetchSavingActions(goal.id, 2);
-  depositFunds(goal, amount, action);
+  depositFunds(amount, action);
   hideInput();
 }
 
-
+const onPostActions = ({amount, action}: {amount: number, action: string}) => {
+  handleActionPost(amount, action);
+}
 
 onUpdated(() => {
   const percentage = (goal.current_amount / goal.goal_amount) * 100;
@@ -155,7 +154,7 @@ watch(() => goal?.id, (newGoalId) => {
           transition ease-in-out duration-200">Withdraw</button>
       </div>
       <ActionForm :showDeposit="showDeposit" :showWithdraw="showWithdraw" :goal="goal"
-      @close="hideInput" @post-action="({amount, action}) => handleActionPost(amount, action)"/>
+      @close="hideInput" @post-action="onPostActions"/>
     </div>
     <div class="w-full h-[30%] flex flex-col gap-1">
       <p class="text-2xl font-semibold text-neutral-800 self-end" :class="{'line-through': goal.finished === 1}">${{ goal.current_amount }} / ${{ goal.goal_amount }}</p>

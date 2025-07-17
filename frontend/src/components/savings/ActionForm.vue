@@ -1,24 +1,26 @@
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from 'vue';
 import formatDate from '@/composables/formatDate';
+import type { GoalType } from '@/types/savings';
 
-const props = defineProps({
-  showWithdraw: Boolean,
-  showDeposit: Boolean,
-  goal: Object
-});
+const {showWithdraw, showDeposit, goal} = defineProps<{
+  showWithdraw: boolean,
+  showDeposit: boolean,
+  goal: GoalType
+}>();
 
 const emit = defineEmits(["close", "post-action"]);
 
-const amount = ref(null);
+const amount = ref<number | null>(null);
+
 const action = computed(() => {
-  if (props.showDeposit) return 'deposit';
-  else if (props.showWithdraw) return 'withdraw';
+  if (showDeposit) return 'deposit';
+  else if (showWithdraw) return 'withdraw';
   else return null;
 });
 
 const postNewGoalAction = async() => {
-  const inputAmount = parseFloat(amount.value);
+  const inputAmount = amount.value;
   try {
     const response = await fetch("http://localhost:8000/savings/new_goal_action/", {
       method: "POST",
@@ -29,8 +31,8 @@ const postNewGoalAction = async() => {
         type: action.value, 
         amount: inputAmount, 
         date: formatDate(new Date()),
-        goal_id: props.goal.id,
-        user_id: props.goal.user_id
+        goal_id: goal.id,
+        user_id: goal.user_id
       })
     });
 

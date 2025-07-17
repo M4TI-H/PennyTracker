@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, watchEffect } from "vue";
 import Navigation from "../components/navigation/Navigation.vue";
 import CompactNavigation from "../components/navigation/CompactNavigation.vue";
@@ -7,56 +7,39 @@ import Subscriptions from "../components/expenses/subscriptions/Subscriptions.vu
 import RecentTransactions from "../components/expenses/transaction-history/RecentTransactions.vue";
 import AllTransactions from "../components/expenses/transaction-history/AllTransactions.vue";
 import ExpensesChart from "../components/expenses/expenses-summary/ExpensesChart.vue";
-import useScreenSize from "@/composables/screenSize";
+import useScreenSize from "@/composables/screenSize.ts";
+import fetchAccounts from "@/composables/fetchAccounts.ts";
+import fetchExpenseCategories from "@/composables/fetchCategories";
+import type { Category, Account } from "@/types/options";
 
 const smallW = 640;
 const {screenWidth, screenHeight} = useScreenSize();
 
 const showAllExpenses = ref(false);
-const expenseCategories = ref([]);
-const accountsData = ref([]);
+const expenseCategories = ref<Category[]>([]);
+const accountsData = ref<Account[]>([]);
 
-const fetchExpenseCategories = async() => {
-  try {
-    const response = await fetch("http://localhost:8000/transactions/expense_categories");
-    if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
-    }
-    expenseCategories.value = await response.json();
-  }
-  catch (error) {
-    console.error(`An error has occured while fetching categories data: ${error}`);
-  }
-}
+type RecentTransactionsExpose = {
+  fetchRecentTransactions: () => void;
+};
 
-const fetchAccounts = async(user) => {
-  try {
-    const url = new URL("http://localhost:8000/transactions/fetch_accounts");
-    url.searchParams.append("user_id", user);
-    
-    const response = await fetch(url.toString());
+type TransactionsByCategoryExpose = {
+  refreshData: () => void;
+};
 
-    if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
-    }
-    accountsData.value = await response.json();
-  }
-  catch (error) {
-    console.error(`An error has occured while fetching accounts data: ${error}`);
-  }
-}
+const recentTransactionsComponent = ref<RecentTransactionsExpose | null>(null);
+const transactionsByCategory = ref<TransactionsByCategoryExpose | null>(null);
 
-const recentTransactionsComponent = ref(null);
-const transactionsByCategory = ref(null);
 const refreshTransactions = () => {
   recentTransactionsComponent.value?.fetchRecentTransactions();
   transactionsByCategory.value?.refreshData();
 };
 
-watchEffect(() => {
-  fetchExpenseCategories(),
-  fetchAccounts(2)
+watchEffect(async() => {
+  expenseCategories.value = await fetchExpenseCategories(2),
+  accountsData.value = await fetchAccounts(2)
 });
+
 </script>
 <template>
   <div class="fixed flex w-full h-full justify-center gap-16 bg-[#DAD7CD] sm:py-16 ">

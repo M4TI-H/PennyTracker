@@ -10,8 +10,12 @@ router = APIRouter(prefix="/transactions", tags=["transactions"])
 
 #fetch expense categories
 @router.get("/expense_categories/")
-def get_expense_categories(db: Session = Depends(get_db)):
-  query = sa.select(expense_category)
+def get_expense_categories(db: Session = Depends(get_db), user_id: int = Query()):
+  query = sa.select(
+    expense_category
+  ).where(
+    expense_category.c.user_id == user_id
+  )
   result = db.execute(query)
   rows = result.all()
   return [dict(row._mapping) for row in rows]

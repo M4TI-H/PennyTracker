@@ -1,28 +1,27 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import formatDate from "@/composables/formatDate";
+import type { NewSubscription } from "@/types/transactions";
 
-defineProps({
-  displayForm: Boolean,
-});
+const { displayForm} = defineProps<{
+  displayForm: boolean,
+}>();
 
 const emit = defineEmits(["close", "after-submit"]);
 
-const data = ref({
+const newSubData = ref<NewSubscription>({
   service: undefined,
-  amount: null,
+  amount: undefined,
   start_date: undefined,
   frequency: undefined,
-  user_id: 2
 });
 
 const closeForm = () => {
-  data.value = {
+  newSubData.value = {
     service: undefined,
-    amount: null,
+    amount: undefined,
     start_date: undefined,
-    frequency: undefined,
-    user_id: 2
+    frequency: undefined
   }
 
   emit("close");
@@ -30,8 +29,8 @@ const closeForm = () => {
 
 const frequencies = ["Daily", "Weekly", "Monthly", "Annually"];
 
-const postNewSubscription = async() => {
-  console.table(data.value);
+const postNewSubscription = async(user_id: number) => {
+  console.table(newSubData.value);
   try {
     const response = await fetch("http://localhost:8000/subscriptions/new_subscription/", {
       method: "POST",
@@ -39,11 +38,11 @@ const postNewSubscription = async() => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        service: data.value.service, 
-        amount: parseFloat(data.value.amount), 
-        start_date: formatDate(data.value.start_date).slice(0, 10),
-        frequency: data.value.frequency,
-        user_id: data.value.user_id
+        service: newSubData.value.service, 
+        amount: newSubData.value.amount, 
+        start_date: formatDate(newSubData.value.start_date).slice(0, 10),
+        frequency: newSubData.value.frequency,
+        user_id: user_id
       })
     });
 
@@ -51,12 +50,11 @@ const postNewSubscription = async() => {
       throw new Error (`HTTP error! Status: ${response.status}`);
     }
 
-    data.value = {
+    newSubData.value = {
       service: undefined,
-      amount: null,
+      amount: undefined,
       start_date: undefined,
       frequency: undefined,
-      user_id: 2
     };
 
     emit("close");
@@ -78,27 +76,27 @@ const postNewSubscription = async() => {
       <button @click="closeForm"class="absolute right-4 top-3 hover:cursor-pointer">
         <i class="pi pi-times"></i>
       </button>
-      <input type="text" placeholder="Name of service" v-model="data.service"
+      <input type="text" placeholder="Name of service" v-model="newSubData.service"
         class="w-[90%] h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
       />
-      <input type="number" placeholder="Amount" v-model="data.amount"
+      <input type="number" placeholder="Amount" v-model="newSubData.amount"
         class="w-[90%] h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
       />
       <span class="w-[90%] flex items-center justify-between gap-4">
         <p class="text-md text-neutral-800 font-semibold">Start date:</p>
-        <input type="date" v-model="data.start_date"
+        <input type="date" v-model="newSubData.start_date"
           class="h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
         />
       </span>
       <span class="w-[90%] flex items-center justify-between gap-4">
         <p class="text-md text-neutral-800 font-semibold">Frequency:</p>
-        <select v-model="data.frequency"
+        <select v-model="newSubData.frequency"
           class="w-35 h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
         >
           <option v-for="frequency in frequencies" :value="frequency" :key="frequency">{{ frequency }}</option> 
         </select>
       </span>
-      <button @click="postNewSubscription"
+      <button @click="postNewSubscription(2)"
       class="w-32 h-10 rounded-3xl bg-neutral-800 text-sm text-[#E9ECEF]
         border-neutral-800 border-2 hover:cursor-pointer hover:bg-[#588157]
         transition ease-in-out duration-200"

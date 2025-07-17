@@ -1,13 +1,14 @@
-<script setup>
+<script setup lang="ts">
 import { ref, watchEffect } from "vue";
 import AccountView from "./AccountView.vue";
-import fetchAccounts from "@/composables/fetchAccounts";
+import fetchAccounts from "@/composables/fetchAccounts.ts";
+import type { Account } from "@/types/options";
 const displayNewAccount = ref(false);
 const displayDeleteAccount = ref(false);
 
-const newAccount = ref(undefined);
+const newAccount = ref<Account | undefined>(undefined);
 
-const postNewAccount = async (user_id) => {
+const postNewAccount = async (user_id: number) => {
   try {
     const response = await fetch("http://localhost:8000/transactions/new_account/", {
       method: "POST",
@@ -19,6 +20,7 @@ const postNewAccount = async (user_id) => {
         user_id: user_id
       })
     });
+    
     if (!response.ok) {
       const err = await response.json()
       throw new Error(err.detail); 
@@ -33,7 +35,7 @@ const postNewAccount = async (user_id) => {
   }
 }
 
-const accountsData = ref([]);
+const accountsData = ref<Account[]>([]);
 watchEffect(async () => {
   accountsData.value = await fetchAccounts(2);
 })

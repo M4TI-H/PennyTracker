@@ -4,6 +4,13 @@ const {transactionsCountData} = defineProps({
   transactionsCountData: Array,
 });
 
+function getMonthName(month) {
+  const monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+  
+  return monthNames[parseInt(month, 10) - 1];
+}
+
 const showDetailsOfDay = ref(null);
 
 const onTileHoverEnter = (day) => {
@@ -72,34 +79,36 @@ function getOpacity(level) {
   ]
   return opacityLevel[level];
 }
-
 </script>
 
 <template>
-  <div class="max-w-[70%] min-w-128 w-full h-96 bg-[#E9ECEF] rounded-xl shadow-xl flex items-center justify-center gap-8">
-    <div v-for="month in monthData" :key="month.month"
-      class="w-64 h-72 flex flex-col items-center gap-4"
-    >
-      <p class="text-neutral-800 text-xl font-semibold">{{ month.month }}</p>
-      <div class="flex flex-wrap gap-1">
-        <div v-for="day in month.length" :key="day"
-          @mouseenter="onTileHoverEnter(formatDate(day, month.month, month.year))" @mouseleave="onTileHoverLeave"
-          class="relative size-8 flex justify-center items-center hover:bg-[#588157]/100 hover:cursor-default"
-          :class="getOpacity(getTransactionLevel(formatDate(day, month.month, month.year)))"
-        > 
-          {{ day }}
-          <div v-if="showDetailsOfDay === formatDate(day, month.month, month.year)"
-            class="absolute w-36 h-14 left-8 z-10
-            p-1 bg-neutral-800/95 rounded-lg"
-          >
-            <p class="text-neutral-400">
-              {{ getTransactionsForDay(formatDate(day, month.month, month.year)) }} 
-              {{ getTransactionsForDay(formatDate(day, month.month, month.year)) === 1 ? "transaction" : "transactions" }}
-              on {{ String(day).padStart(2, "0") }}/{{ month.month }}/{{ month.year }}
-            </p>
+  <div class="max-w-[70%] min-w-128 w-full h-96 bg-[#E9ECEF] rounded-xl shadow-xl flex flex-col items-center justify-evenly">
+    <p class="text-neutral-800 text-2xl font-semibold">Monthly transaction count</p>
+    <span class="w-full flex items-center justify-center  gap-8">
+      <div div v-for="month in monthData" :key="month.month"
+        class="w-64 h-72 flex flex-col items-center gap-4"
+      >
+        <p class="text-neutral-800 text-xl font-semibold">{{ getMonthName(month.month) }}</p>
+        <div class="flex flex-wrap gap-1">
+          <div v-for="day in month.length" :key="day"
+            @mouseenter="onTileHoverEnter(formatDate(day, month.month, month.year))" @mouseleave="onTileHoverLeave"
+            class="relative size-8 flex justify-center items-center rounded-md hover:bg-[#588157]/100 hover:cursor-default"
+            :class="getOpacity(getTransactionLevel(formatDate(day, month.month, month.year)))"
+          > 
+            {{ day }}
+            <div v-if="showDetailsOfDay === formatDate(day, month.month, month.year)"
+              class="absolute w-36 h-14 left-9 z-10
+              p-1 bg-neutral-800/95 rounded-lg"
+            >
+              <p class="text-neutral-400">
+                {{ getTransactionsForDay(formatDate(day, month.month, month.year)) }} 
+                {{ getTransactionsForDay(formatDate(day, month.month, month.year)) === 1 ? "transaction" : "transactions" }}
+                on {{ String(day).padStart(2, "0") }}/{{ month.month }}/{{ month.year }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </span>
   </div>
 </template>

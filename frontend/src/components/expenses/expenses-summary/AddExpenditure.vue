@@ -1,22 +1,24 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import formatDate from "@/composables/formatDate";
+import type { Category, Account } from "@/types/options";
+import type { NewTransaction } from "@/types/transactions";
 
-defineProps({
-  expenseCategories: Array,
-  accountsData: Array
-});
+const { expenseCategories, accountsData } = defineProps<{
+  expenseCategories: Category[],
+  accountsData: Account[]
+}>();
 
-const data = ref({
-  name: "",
-  amount: null,
-  method: null,
-  category: null,
+const newExpData = ref<NewTransaction>({
+  name: undefined,
+  amount: undefined,
+  method: undefined,
+  category: undefined,
 });
 
 const emit = defineEmits(["after-submit"]);
 
-const postNewExpenditure = async(user_id) => {
+const postNewExpenditure = async(user_id: number) => {
   try {
     const response = await fetch("http://localhost:8000/transactions/new_expenditure/", {
       method: "POST",
@@ -24,10 +26,10 @@ const postNewExpenditure = async(user_id) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        name: data.value.name, 
-        amount: data.value.amount ? parseFloat(data.value.amount) : 0,
-        method: data.value.method ? parseInt(data.value.method) : -1, 
-        category: data.value.category ? parseInt(data.value.category) : -1,
+        name: newExpData.value.name, 
+        amount: newExpData.value.amount ? newExpData.value.amount : 0,
+        method: newExpData.value.method ? newExpData.value.method : -1, 
+        category: newExpData.value.category ? newExpData.value.category : -1,
         date: formatDate(new Date()).slice(0, 10),
         user_id: user_id
       })
@@ -38,12 +40,11 @@ const postNewExpenditure = async(user_id) => {
       throw new Error(err.detail); 
     }
 
-    data.value = {
-      name: "",
-      amount: null,
-      method: null,
-      category: null,
-      user_id: 2
+    newExpData.value = {
+      name: undefined,
+      amount: undefined,
+      method: undefined,
+      category: undefined,
     };
 
     emit("after-submit");
@@ -58,16 +59,16 @@ const postNewExpenditure = async(user_id) => {
     <p class="text-2xl text-neutral-800 font-semibold">New expenditure</p>
     <input type="text" placeholder="Name of expense" 
       class="w-[70%] h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
-      v-model="data.name"
+      v-model="newExpData.name"
     />
     <input type="number" placeholder="Amount" 
       class="w-[70%] h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
-      v-model="data.amount"
+      v-model="newExpData.amount"
     />
     <span class="w-[70%] h-10 flex justify-between items-center">
       <p class="text-md text-neutral-800 font-semibold">Method:</p>
       <select class="w-[60%] h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
-        v-model="data.method"
+        v-model="newExpData.method"
       >
         <option v-for="method in accountsData" :key="method.id" :value="method.id">{{ method.name }}</option>
       </select>
@@ -75,7 +76,7 @@ const postNewExpenditure = async(user_id) => {
     <span class="w-[70%] h-10 flex justify-between items-center">
       <p class="text-md text-neutral-800 font-semibold">Category:</p>
       <select class="w-[60%] h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
-        v-model="data.category"
+        v-model="newExpData.category"
       >
         <option :value="category.id" v-for="category in expenseCategories" :key="category.id">{{ category.name }}</option>
       </select>

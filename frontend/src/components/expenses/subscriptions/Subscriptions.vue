@@ -1,18 +1,20 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from "vue";
 import NewSubForm from "./NewSubForm.vue";
+import type { Subscription } from "@/types/transactions";
 
-const displayForm = ref(false);
+const displayForm = ref<boolean>(false);
 
 const switchFormDisplay = () => {
   displayForm.value = !displayForm.value;
 }
 
-const subscriptionsData = ref([]);
+const subscriptionsData = ref<Subscription[]>([]);
 
 const fetchSubscriptions = async() => {
   try {
     const response = await fetch("http://localhost:8000/subscriptions/fetch_all");
+    
     if (!response.ok) {
       throw new Error (`HTTP error! Status: ${response.status}`);
     }

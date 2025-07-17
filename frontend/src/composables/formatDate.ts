@@ -1,3 +1,4 @@
+// @ts-nocheck
 export default function formatDate(date) {
   const dateOptions = {
     day: "2-digit",

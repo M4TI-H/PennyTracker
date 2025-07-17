@@ -1,7 +1,7 @@
-export default async function fetchAccounts(user) {
+export default async function fetchAccounts(user: number) {
   try {
     const url = new URL("http://localhost:8000/transactions/fetch_accounts");
-    url.searchParams.append("user_id", user);
+    url.searchParams.append("user_id", user.toString());
     
     const response = await fetch(url.toString());
 

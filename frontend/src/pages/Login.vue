@@ -1,4 +1,4 @@
-<script setup>
+<script setup  lang="ts">
 import useScreenSize from '@/composables/screenSize';
 
 const {screenWidth, screenHeight} = useScreenSize();

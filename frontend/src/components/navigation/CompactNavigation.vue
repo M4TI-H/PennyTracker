@@ -1,8 +1,7 @@
-<script setup>
-defineProps({
-  screenWidth: Number,
-})
+<script setup lang="ts">
+import useScreenSize from '@/composables/screenSize';
 
+const { screenWidth, screenHeight } = useScreenSize();
 const smallW = 640;
 
 </script>

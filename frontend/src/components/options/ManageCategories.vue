@@ -1,25 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import { ref, watchEffect } from "vue";
-const displayNewCategory = ref(false);
-const displayDeleteCategory = ref(false);
-const newCategory = ref("");
-const categoryToDelete = ref(0);
-const expenseCategories = ref([]);
+import fetchExpenseCategories from "@/composables/fetchCategories";
+import type { Category } from "@/types/options";
 
-const fetchExpenseCategories = async() => {
-  try {
-    const response = await fetch("http://localhost:8000/transactions/expense_categories");
-    if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
-    }
-    expenseCategories.value = await response.json();
-  }
-  catch (error) {
-    console.error(`An error has occured while fetching categories data: ${error}`);
-  }
-}
+const displayNewCategory = ref<boolean>(false);
+const displayDeleteCategory = ref<boolean>(false);
+const newCategory = ref<string>("");
+const categoryToDelete = ref<number>(0);
+const expenseCategories = ref<Category[]>([]);
 
-const postNewCategory = async (user_id) => {
+const postNewCategory = async (user_id: number) => {
   try {
     const response = await fetch("http://localhost:8000/transactions/new_category/", {
       method: "POST",
@@ -37,7 +27,7 @@ const postNewCategory = async (user_id) => {
       throw new Error(err.detail); 
     }
 
-    fetchExpenseCategories();
+    fetchExpenseCategories(2);
     switchDisplayNewCategory();
   }
   catch (error) {
@@ -45,11 +35,11 @@ const postNewCategory = async (user_id) => {
   }
 }
 
-const deleteCategory = async (user_id) => {
+const deleteCategory = async (user_id: number) => {
   try {
     const url = new URL("http://localhost:8000/transactions/delete_category/");
-    url.searchParams.append("category_id", categoryToDelete.value);
-    url.searchParams.append("user_id", user_id);
+    url.searchParams.append("category_id", categoryToDelete.value.toString());
+    url.searchParams.append("user_id", user_id.toString());
 
     const response = await fetch(url.toString(), {
       method: "DELETE"
@@ -59,7 +49,7 @@ const deleteCategory = async (user_id) => {
       throw new Error (`HTTP error! Status: ${response.status}`);
     }
 
-    fetchExpenseCategories();
+    fetchExpenseCategories(2);
     switchDisplayDeleteCategory();
   }
   catch (error) {
@@ -67,7 +57,9 @@ const deleteCategory = async (user_id) => {
   }
 }
 
-watchEffect(() => fetchExpenseCategories());
+watchEffect(async() => {
+  expenseCategories.value = await fetchExpenseCategories(2);
+});
 
 const switchDisplayNewCategory = () => {
   displayNewCategory.value = !displayNewCategory.value;

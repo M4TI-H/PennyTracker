@@ -1,11 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref, computed } from "vue";
 import ExpensesView from "./ExpensesView.vue";
 
-defineProps({
-  modelValue: Boolean
-});
-
+const props = defineProps<{ modelValue: boolean }>();
 const emit = defineEmits(["update:modelValue", "deletion"]);
 
 const transactionsData = ref([]);
@@ -26,7 +23,7 @@ const fetchRecentTransactions = async() => {
 }
 
 //switch display state of all expenses component
-const switchShowAll = () => emit('update:modelValue', true);
+const switchShowAll = () => emit("update:modelValue", true);
 
 const transactionDeletion = () => {
   fetchRecentTransactions();

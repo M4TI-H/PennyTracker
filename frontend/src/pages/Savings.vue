@@ -1,15 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import Navigation from "@/components/navigation/Navigation.vue";
 import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
 import Goal from "@/components/savings/Goal.vue";
 import NewGoal from "@/components/savings/NewGoal.vue";
-import useScreenSize from "@/composables/screenSize";
+import useScreenSize from "@/composables/screenSize.ts";
+import type { GoalType } from "@/types/savings";
 
 const smallW = 640;
 const {screenWidth, screenHeight} = useScreenSize();
 
-const savingsData = ref([]);
+const savingsData = ref<GoalType[]>([]);
 
 const fetchSavings = async() => {
   try {
@@ -36,7 +37,6 @@ onMounted(async () => {
     <!--Menu bar with buttons-->
     <Navigation v-if="screenWidth >= smallW" :screenWidth="screenWidth"/>
     <CompactNavigation v-else/>
-
     <span class="max-w-[96rem] h-auto w-full flex flex-wrap sm:flex-row sm:flex-wrap gap-8 overflow-y-auto">
       <Goal v-for="goal in savingsData" :key="goal.id" :goal="goal" @refresh="fetchSavings"/>
       <NewGoal @post-goal="fetchSavings"/>

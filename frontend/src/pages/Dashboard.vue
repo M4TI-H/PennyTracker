@@ -1,4 +1,5 @@
-<script setup>
+<script setup lang="ts">
+// @ts-nocheck
 import { ref, watchEffect, onMounted } from "vue";
 import Navigation from "@/components/navigation/Navigation.vue";
 import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
@@ -6,12 +7,12 @@ import NameCard from "@/components/dashboard/NameCard.vue";
 import PiggyBank from "@/components/dashboard/PiggyBank.vue";
 import ExpensesSummary from "@/components/dashboard/ExpensesSummary.vue";
 import AccountView from "@/components/options/AccountView.vue";
-import fetchAccounts from "@/composables/fetchAccounts.js";
+import fetchAccounts from "@/composables/fetchAccounts";
 import useScreenSize from "@/composables/screenSize";
 import TransactionCount from "@/components/dashboard/TransactionCount.vue";
 
 const smallW = 640;
-const {screenWidth, screenHeight} = useScreenSize();
+const {screenWidth, screenHeight}: {screenWidth: number, screenHeight: number} = useScreenSize();
 
 const totalMonthlySavings = ref(0);
 const month = ref("");

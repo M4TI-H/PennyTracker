@@ -1,9 +1,8 @@
 import { ref, onMounted, onUnmounted } from "vue";
-
 export default function useScreenSize() {
 
-  const screenWidth = ref(window.innerWidth);
-  const screenHeight = ref(window.innerHeight);
+  const screenWidth = ref<number>(window.innerWidth);
+  const screenHeight = ref<number>(window.innerHeight);
 
   const handleResize = () => {
     screenHeight.value = window.innerHeight;
@@ -18,5 +17,12 @@ export default function useScreenSize() {
     window.removeEventListener("resize", handleResize);
   });
 
-  return { screenWidth, screenHeight };
+  return {
+    get screenWidth() {
+      return screenWidth.value;
+    },
+    get screenHeight() {
+      return screenHeight.value;
+    }
+  };
 }

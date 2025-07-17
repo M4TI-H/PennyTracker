@@ -1,18 +1,17 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import ExpensesData from './ExpensesData.vue';
+import type { Expense } from '@/types/transactions';
 
-const selectedFilter = ref("category");
+const selectedFilter = ref<string>("category");
+const expenses = ref<Expense[]>([]);
+const totalExpenses = ref<number>(0.0);
+const monthId = ref<string>("");
 
-const expenses = ref([]);
-const totalExpenses = ref(0.0);
-const userId = 2;
-const monthId = ref("");
-
-const fetchExpensesByCategory = async (user, month) => {
+const fetchExpensesByCategory = async (user_id: number, month: string) => {
   try {
     const url = new URL("http://localhost:8000/transactions/fetch_by_category");
-    url.searchParams.append("user_id", user);
+    url.searchParams.append("user_id", user_id.toString());
     url.searchParams.append("month", month);
     
     const response = await fetch(url.toString());
@@ -29,10 +28,10 @@ const fetchExpensesByCategory = async (user, month) => {
   }
 }
 
-const fetchExpensesByMethod = async (user, month) => {
+const fetchExpensesByMethod = async (user_id: number, month: string) => {
   try {
     const url = new URL("http://localhost:8000/transactions/fetch_by_method");
-    url.searchParams.append("user_id", user);
+    url.searchParams.append("user_id", user_id.toString());
     url.searchParams.append("month", month);
     
     const response = await fetch(url.toString());
@@ -66,18 +65,18 @@ const months = [
 
 onMounted(async () => {
   monthId.value = (new Date().getMonth() + 1).toString().padStart(2, "0");
-  if (selectedFilter.value === "category") await fetchExpensesByCategory(userId, monthId.value);
-  else if (selectedFilter.value === "method") await fetchExpensesByMethod(userId, monthId.value);
+  if (selectedFilter.value === "category") await fetchExpensesByCategory(2, monthId.value);
+  else if (selectedFilter.value === "method") await fetchExpensesByMethod(2, monthId.value);
 });
 
 watch([monthId, selectedFilter], async ([newMonth, newFilter]) => {
-  if (newFilter === "category") await fetchExpensesByCategory(userId, newMonth);
-  else if (newFilter === "method") await fetchExpensesByMethod(userId, newMonth);
+  if (newFilter === "category") await fetchExpensesByCategory(2, newMonth);
+  else if (newFilter === "method") await fetchExpensesByMethod(2, newMonth);
 });
 
 const refreshData = async () => {
-  if (selectedFilter.value === "category") await fetchExpensesByCategory(userId, monthId.value);
-  else if (selectedFilter.value === "method") await fetchExpensesByMethod(userId, monthId.value);
+  if (selectedFilter.value === "category") await fetchExpensesByCategory(2, monthId.value);
+  else if (selectedFilter.value === "method") await fetchExpensesByMethod(2, monthId.value);
 };
 
 defineExpose({
@@ -109,7 +108,7 @@ defineExpose({
       </div>
       <ExpensesData :expenses="expenses" :filter="selectedFilter"/>
 
-      <p v-if="totalExpenses" class="text-lg text-neutral-800 font-semibold ml-8 mt-2">Total: ${{ parseFloat(totalExpenses).toFixed(2) }}</p>
+      <p v-if="totalExpenses" class="text-lg text-neutral-800 font-semibold ml-8 mt-2">Total: ${{ totalExpenses.toFixed(2) }}</p>
       <p v-else class="text-lg text-neutral-800 font-semibold ml-8 mt-2">No data</p>
     </div>
   </div>
