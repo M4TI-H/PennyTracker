@@ -67,6 +67,24 @@ const fetchTransactionsCount = async(user_id) => {
     }
 
     transactionsCountData.value = await response.json();
+    transactionsCountData.value = transactionsCountData.value.map(t => {
+      let level = 0;
+      let num = t.number_of_transactions;
+      if (num === 1){
+        level = 1;
+      }
+      else if (num === 2 || num === 3) {
+        level = 2;
+      }
+      else if (num > 3 && num <= 5) {
+        level = 3;
+      }
+      else if (num > 5 && num < 10){
+        level = 4;
+      }
+      
+      return {...t, level};
+    });
   }
   catch (error) {
     console.error(`An error has occured while fetching transactions data: ${error}`);

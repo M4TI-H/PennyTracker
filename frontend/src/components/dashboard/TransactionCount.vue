@@ -36,10 +36,6 @@ function formatDate(day, month, year) {
   return `${String(day).padStart(2, "0")}/${month}/${year}`;
 }
 
-function getTransactionsForDay(date) {
-  return transactionMap.value[date] || 0;
-}
-
 let monthData = [];
 const transactionMap = ref({});
 
@@ -51,11 +47,31 @@ watch(() => transactionsCountData, (newData) => {
   transactionMap.value = transactionsCountData.reduce((map, t) => {
     const [day, month, year] = t.date.split('/');
     const date = formatDate(day, month, year);
-    map[date] = t.number_of_transactions;
+
+    map[date] = {num: t.number_of_transactions, level: t.level};
     return map;
   }, {});
-  console.table(transactionMap.value);
 });
+
+function getTransactionsForDay(date) {
+  return transactionMap.value[date]?.num || 0;
+}
+
+function getTransactionLevel(date) {
+  let level = transactionMap.value[date]?.level;
+  return level || 0;
+}
+
+function getOpacity(level) {
+  const opacityLevel = [
+    "bg-[#588157]/20",
+    "bg-[#588157]/50",
+    "bg-[#588157]/70",
+    "bg-[#588157]/90",
+    "bg-[#588157]/100",
+  ]
+  return opacityLevel[level];
+}
 
 </script>
 
@@ -68,11 +84,12 @@ watch(() => transactionsCountData, (newData) => {
       <div class="flex flex-wrap gap-1">
         <div v-for="day in month.length" :key="day"
           @mouseenter="onTileHoverEnter(formatDate(day, month.month, month.year))" @mouseleave="onTileHoverLeave"
-          class="relative size-8 border-1 flex justify-center items-center hover:bg-red-500"
+          class="relative size-8 flex justify-center items-center hover:bg-[#588157]/100 hover:cursor-default"
+          :class="getOpacity(getTransactionLevel(formatDate(day, month.month, month.year)))"
         > 
           {{ day }}
           <div v-if="showDetailsOfDay === formatDate(day, month.month, month.year)"
-            class="absolute w-36 h-14 left-8
+            class="absolute w-36 h-14 left-8 z-10
             p-1 bg-neutral-800/95 rounded-lg"
           >
             <p class="text-neutral-400">
