@@ -7,7 +7,10 @@ const { displayForm} = defineProps<{
   displayForm: boolean,
 }>();
 
-const emit = defineEmits(["close", "after-submit"]);
+const emit = defineEmits<{
+  (e: "close"): void
+  (e: "submit"): void
+}>();
 
 const newSubData = ref<NewSubscription>({
   service: undefined,
@@ -58,7 +61,7 @@ const postNewSubscription = async(user_id: number) => {
     };
 
     emit("close");
-    emit("after-submit")
+    emit("submit")
   }
   catch (error) {
     console.error(`An error has occured while posting subscriptions data: ${error}`);

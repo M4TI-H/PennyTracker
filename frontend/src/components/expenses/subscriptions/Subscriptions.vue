@@ -56,6 +56,6 @@ onMounted(async () => {
       </div>
     </div>
     
-   <NewSubForm :displayForm="displayForm" @close="switchFormDisplay" @after-submit="fetchSubscriptions"/>
+   <NewSubForm :displayForm="displayForm" @close="switchFormDisplay" @submit="fetchSubscriptions"/>
 </div>
 </template>

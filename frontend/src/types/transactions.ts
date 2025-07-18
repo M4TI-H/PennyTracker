@@ -51,6 +51,12 @@ export interface MonthlyTransactions {
   number_of_transactions: number;
 }
 
+export interface TransactionsChart {
+  month: string[];
+  total_expenses: number[];
+  number_of_transactions: number[];
+}
+
 export interface MonthInfo {
   year: number;
   month: string;

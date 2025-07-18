@@ -48,15 +48,15 @@ onMounted(async() => {
     <CompactNavigation v-else/>
     <span class="max-w-[96rem] h-auto w-full flex flex-col sm:flex-row sm:flex-wrap items-center justify-between sm:items-start">
       <div class="sm:max-w-[100%] w-full sm:min-w-128 sm:h-[54%] flex items-center bg-[#E9ECEF] p-4 rounded-xl shadow-xl">
-        <AddExpenditure :expenseCategories="expenseCategories" :accountsData="accountsData" @after-submit="refreshTransactions"/>
+        <AddExpenditure :expenseCategories="expenseCategories" :accountsData="accountsData" @submit="refreshTransactions"/>
         <div class="ml-4 w-[3px] h-[96%] bg-neutral-300"></div>
         <ExpensesChart ref="transactionsByCategory"/>
       </div>
       <!--Recent transactions section-->
-      <RecentTransactions ref="recentTransactionsComponent" v-model="showAllExpenses" @deletion="refreshTransactions"/>
+      <RecentTransactions ref="recentTransactionsComponent" v-model:visible="showAllExpenses" @deletion="refreshTransactions"/>
       <!--Subsription management-->
       <Subscriptions />
     </span>
   </div>
-  <AllTransactions v-if="showAllExpenses" v-model="showAllExpenses" @deletion="refreshTransactions"/>
+  <AllTransactions v-if="showAllExpenses" v-model:visible="showAllExpenses" @deletion="refreshTransactions"/>
 </template>

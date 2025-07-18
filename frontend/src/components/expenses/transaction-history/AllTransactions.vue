@@ -3,8 +3,11 @@ import { ref, onMounted } from 'vue';
 import ExpensesView from './ExpensesView.vue';
 import type { Transaction } from '@/types/transactions';
 
-const props = defineProps<{ modelValue: boolean }>();
-const emit = defineEmits(["update:modelValue", "deletion"]);
+defineProps<{ visible: boolean }>();
+const emit = defineEmits<{
+  (e: "update:visible", value: boolean): void
+  (e: "deletion"): void
+}>();
 
 const transactionsData = ref<Transaction[]>([]);
 
@@ -23,7 +26,7 @@ const fetchTransactions = async() => {
 }
 
 //switch display state of all expenses component
-const switchShowAll = () => emit("update:modelValue", false);
+const switchShowAll = () => emit("update:visible", false);
 
 const transactionDeletion = () => {
   fetchTransactions();

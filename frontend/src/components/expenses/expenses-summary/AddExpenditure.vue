@@ -16,7 +16,9 @@ const newExpData = ref<NewTransaction>({
   category: undefined,
 });
 
-const emit = defineEmits(["after-submit"]);
+const emit = defineEmits<{
+  (e: "submit"): void
+}>();
 
 const postNewExpenditure = async(user_id: number) => {
   try {
@@ -47,7 +49,7 @@ const postNewExpenditure = async(user_id: number) => {
       category: undefined,
     };
 
-    emit("after-submit");
+    emit("submit");
   }
   catch (error) {
     console.error(`An error has occured while posting transactions data: ${error}`);

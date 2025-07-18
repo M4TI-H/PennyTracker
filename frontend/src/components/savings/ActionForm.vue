@@ -13,7 +13,7 @@ const emit = defineEmits(["close", "post-action"]);
 
 const amount = ref<number | null>(null);
 
-const action = computed(() => {
+const action = computed<string | null>(() => {
   if (showDeposit) return 'deposit';
   else if (showWithdraw) return 'withdraw';
   else return null;
