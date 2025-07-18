@@ -37,3 +37,22 @@ export interface NewSubscription {
   frequency: string | undefined;
   start_date: string | undefined;
 }
+
+export interface TransactionCountType {
+  id: number;
+  date: string;
+  number_of_transactions: number;
+  level: number;
+}
+
+export interface MonthlyTransactions {
+  month: string;
+  total_expenses: number;
+  number_of_transactions: number;
+}
+
+export interface MonthInfo {
+  year: number;
+  month: string;
+  length: number;
+}

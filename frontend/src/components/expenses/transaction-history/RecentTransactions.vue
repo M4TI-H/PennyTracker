@@ -2,7 +2,7 @@
 import { onMounted, ref, computed } from "vue";
 import ExpensesView from "./ExpensesView.vue";
 
-const props = defineProps<{ modelValue: boolean }>();
+defineProps<{ modelValue: boolean }>();
 const emit = defineEmits(["update:modelValue", "deletion"]);
 
 const transactionsData = ref([]);

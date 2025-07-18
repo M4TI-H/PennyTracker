@@ -1,19 +1,19 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
-const {transactionsCountData} = defineProps({
-  transactionsCountData: Array,
-});
+import type { TransactionCountType, MonthInfo } from "@/types/transactions";
+import { fetchTransactionsCount } from "@/composables/dashboardDataFetches";
 
-function getMonthName(month) {
+const transactionsCountData = ref(<TransactionCountType[]>[]);
+const showDetailsOfDay = ref<string | null>(null);
+let monthData = ref<MonthInfo[]>([]);
+
+function getMonthName(month: string) {
   const monthNames = ["January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"];
-  
   return monthNames[parseInt(month, 10) - 1];
 }
 
-const showDetailsOfDay = ref(null);
-
-const onTileHoverEnter = (day) => {
+const onTileHoverEnter = (day: string) => {
   showDetailsOfDay.value = day;
 }
 
@@ -39,37 +39,32 @@ function getMonthLen(){
   return months;
 }
 
-function formatDate(day, month, year) {
-  return `${String(day).padStart(2, "0")}/${month}/${year}`;
+function formatDate(day: number | string, month: string, year: number | string) : string {
+  return `${day.toString().padStart(2, "0")}/${month}/${year}`;
 }
 
-let monthData = [];
-const transactionMap = ref({});
+const transactionMap = ref<Record<string, { num: number; level: number }>>({});
 
-onMounted(() => {
-  monthData = getMonthLen();
-});
-
-watch(() => transactionsCountData, (newData) => {
-  transactionMap.value = transactionsCountData.reduce((map, t) => {
+watch(() => transactionsCountData.value, (newData) => {
+  transactionMap.value = newData.reduce((map, t: TransactionCountType) => {
     const [day, month, year] = t.date.split('/');
     const date = formatDate(day, month, year);
 
     map[date] = {num: t.number_of_transactions, level: t.level};
     return map;
-  }, {});
+  }, {} as Record<string, { num: number; level: number }>);
 });
 
-function getTransactionsForDay(date) {
+function getTransactionsForDay(date: string) {
   return transactionMap.value[date]?.num || 0;
 }
 
-function getTransactionLevel(date) {
+function getTransactionLevel(date: string) {
   let level = transactionMap.value[date]?.level;
   return level || 0;
 }
 
-function getOpacity(level) {
+function getOpacity(level: number) {
   const opacityLevel = [
     "bg-[#588157]/20",
     "bg-[#588157]/50",
@@ -79,6 +74,24 @@ function getOpacity(level) {
   ]
   return opacityLevel[level];
 }
+
+function calculateTransactionLevel(num: number): number {
+  if (num === 1) return 1;
+  if (num === 2 || num === 3) return 2;
+  if (num > 3 && num <= 5) return 3;
+  if (num > 5 && num < 10) return 4;
+  return 0;
+}
+
+onMounted(async() => {
+  transactionsCountData.value = await fetchTransactionsCount(2);
+  transactionsCountData.value = transactionsCountData.value.map(t => ({
+    ...t,
+    level: calculateTransactionLevel(t.number_of_transactions)
+  }));
+
+  monthData.value = getMonthLen();
+})
 </script>
 
 <template>

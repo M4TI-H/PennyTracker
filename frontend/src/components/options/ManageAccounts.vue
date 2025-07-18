@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { onMounted, ref, watchEffect } from "vue";
 import AccountView from "./AccountView.vue";
 import fetchAccounts from "@/composables/fetchAccounts.ts";
 import type { Account } from "@/types/options";
 const displayNewAccount = ref(false);
 const displayDeleteAccount = ref(false);
 
-const newAccount = ref<Account | undefined>(undefined);
 
+const accountsData = ref<Account[]>([]);
+const refreshAccounts = async () => {
+  accountsData.value = await fetchAccounts(2);
+}
+
+const newAccount = ref<Account | undefined>(undefined);
 const postNewAccount = async (user_id: number) => {
   try {
     const response = await fetch("http://localhost:8000/transactions/new_account/", {
@@ -27,7 +32,7 @@ const postNewAccount = async (user_id: number) => {
     }
 
     newAccount.value = undefined;
-    fetchAccounts(2);
+    refreshAccounts();
     switchDisplayNewAccount();
   }
   catch (error) {
@@ -35,9 +40,8 @@ const postNewAccount = async (user_id: number) => {
   }
 }
 
-const accountsData = ref<Account[]>([]);
-watchEffect(async () => {
-  accountsData.value = await fetchAccounts(2);
+onMounted(async () => {
+  refreshAccounts();
 })
 
 const switchDisplayNewAccount = () => {
@@ -50,7 +54,7 @@ const switchDisplayNewAccount = () => {
 
 <template>
   <div class="w-[60%] h-[40%] flex flex-wrap gap-4">
-    <AccountView v-for="account in accountsData" :key="account.id" :account="account" @delete="fetchAccounts(2)"/>
+    <AccountView v-for="account in accountsData" :key="account.id" :account="account" @delete="refreshAccounts()"/>
 
     <div @click="switchDisplayNewAccount"
       class="w-64 h-32 flex flex-col p-4

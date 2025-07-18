@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { onMounted, ref } from "vue";
 import Navigation from "../components/navigation/Navigation.vue";
 import CompactNavigation from "../components/navigation/CompactNavigation.vue";
 import AddExpenditure from "../components/expenses/expenses-summary/AddExpenditure.vue";
@@ -9,7 +9,7 @@ import AllTransactions from "../components/expenses/transaction-history/AllTrans
 import ExpensesChart from "../components/expenses/expenses-summary/ExpensesChart.vue";
 import useScreenSize from "@/composables/screenSize.ts";
 import fetchAccounts from "@/composables/fetchAccounts.ts";
-import fetchExpenseCategories from "@/composables/fetchCategories";
+import fetchExpenseCategories from "@/composables/fetchCategories.ts";
 import type { Category, Account } from "@/types/options";
 
 const smallW = 640;
@@ -35,7 +35,7 @@ const refreshTransactions = () => {
   transactionsByCategory.value?.refreshData();
 };
 
-watchEffect(async() => {
+onMounted(async() => {
   expenseCategories.value = await fetchExpenseCategories(2),
   accountsData.value = await fetchAccounts(2)
 });

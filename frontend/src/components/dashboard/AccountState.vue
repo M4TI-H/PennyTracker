@@ -1,8 +1,8 @@
-<script setup>
-defineProps({
-  account: String,
-  balance: String
-})
+<script setup lang="ts">
+const { account, balance } = defineProps<{
+  account: string,
+  balance: string
+}>();
 </script>
 
 <template>
