@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import ExpensesData from './ExpensesData.vue';
-import type { Expense } from '@/types/transactions';
+import type { Expense, ExpenseChart } from '@/types/transactions';
+import CategoryChart from './CategoryChart.vue';
+import MethodChart from './MethodChart.vue';
 
 const selectedFilter = ref<string>("category");
 const expenses = ref<Expense[]>([]);
@@ -22,6 +24,8 @@ const fetchExpensesByCategory = async (user_id: number, month: string) => {
     const fetchedData = await response.json();
     expenses.value = fetchedData.expenses;
     totalExpenses.value = fetchedData.total;
+    console.log(fetchedData);
+
   }
   catch (error) {
     console.error(`An error has occured while fetching categories data: ${error}`);
@@ -65,8 +69,7 @@ const months = [
 
 onMounted(async () => {
   monthId.value = (new Date().getMonth() + 1).toString().padStart(2, "0");
-  if (selectedFilter.value === "category") await fetchExpensesByCategory(2, monthId.value);
-  else if (selectedFilter.value === "method") await fetchExpensesByMethod(2, monthId.value);
+  refreshData();
 });
 
 watch([monthId, selectedFilter], async ([newMonth, newFilter]) => {
@@ -79,6 +82,20 @@ const refreshData = async () => {
   else if (selectedFilter.value === "method") await fetchExpensesByMethod(2, monthId.value);
 };
 
+const chartData = ref<ExpenseChart>({
+  category: [],
+  method: [],
+  total: []
+});
+
+watch(expenses, (newValue) => {
+  chartData.value = {
+    category: newValue.map(e => e.category),
+    method: newValue.map(e => e.method),
+    total: newValue.map(e => e.total)
+  };
+});
+
 defineExpose({
   refreshData
 });
@@ -86,7 +103,7 @@ defineExpose({
 </script>
 
 <template>
-  <div class="w-full h-full p-2">
+  <div class="w-full h-full p-2 flex justify-evenly">
     <div class="w-[25%] h-full">
       <span class="flex items-center gap-4">
         <p class="text-lg text-neutral-800 font-semibold">Your expenses in</p>
@@ -107,9 +124,13 @@ defineExpose({
         </span>
       </div>
       <ExpensesData :expenses="expenses" :filter="selectedFilter"/>
-
       <p v-if="totalExpenses" class="text-lg text-neutral-800 font-semibold ml-8 mt-2">Total: ${{ totalExpenses.toFixed(2) }}</p>
       <p v-else class="text-lg text-neutral-800 font-semibold ml-8 mt-2">No data</p>
+    </div>
+    <div class="w-198 h-full">
+      <CategoryChart v-if="selectedFilter === 'category'" :chartData="chartData"/>
+      <MethodChart v-else-if="selectedFilter === 'method'" :chartData="chartData"/>
+      <p>Poprawić wybór miesiąca</p>
     </div>
   </div>
 </template>

@@ -62,3 +62,9 @@ export interface MonthInfo {
   month: string;
   length: number;
 }
+
+export interface ExpenseChart {
+  category: string[];
+  method: Record<string, number>[];
+  total: number[];
+}

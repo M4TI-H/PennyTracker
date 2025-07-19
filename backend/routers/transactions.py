@@ -121,7 +121,7 @@ def fetch_by_category(db: Session = Depends(get_db), user_id: int = Query(), mon
     transactions.c.date.like(date_pattern)
   ).group_by(
     expense_category.c.name,
-    transactions.c.method
+    accounts.c.name
   )
 
   result = db.execute(query)
@@ -319,8 +319,8 @@ def get_monthly_transactions(db: Session = Depends(get_db), user_id: int = Query
   ).where(
     transactions.c.user_id == user_id
   ).order_by(
-    sa.func.date_format(date_parsed, '%Y-%m').desc()
-  )
+    sa.func.date_format(date_parsed, '%Y-%m').asc()
+  ).limit(12)
   
   result = db.execute(query)
   rows = result.all()
