@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
 import type { TransactionCountType, MonthInfo } from "@/types/transactions";
+import getMonthName from "@/composables/getMonthName";
 import { fetchTransactionsCount } from "@/composables/dashboardDataFetches";
 
 const transactionsCountData = ref(<TransactionCountType[]>[]);
 const showDetailsOfDay = ref<string | null>(null);
 let monthData = ref<MonthInfo[]>([]);
-
-function getMonthName(month: string) {
-  const monthNames = ["January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"];
-  return monthNames[parseInt(month, 10) - 1];
-}
 
 const onTileHoverEnter = (day: string) => {
   showDetailsOfDay.value = day;
