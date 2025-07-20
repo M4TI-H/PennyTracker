@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref, watchEffect, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import Navigation from "@/components/navigation/Navigation.vue";
 import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
 import NameCard from "@/components/dashboard/NameCard.vue";
-import PiggyBank from "@/components/dashboard/PiggyBank.vue";
 import ExpensesSummary from "@/components/dashboard/ExpensesSummary.vue";
 import AccountView from "@/components/options/AccountView.vue";
 import { fetchTopAccounts } from "@/composables/fetchAccounts.ts";
 import useScreenSize from "@/composables/screenSize.ts";
 import TransactionCount from "@/components/dashboard/TransactionCount.vue";
 import type { Account } from "@/types/options";
+import BudgetChart from "@/components/dashboard/BudgetChart.vue";
 
 const smallW = 640;
 const {screenWidth, screenHeight} = useScreenSize();
@@ -42,7 +42,7 @@ onMounted(async() => {
       <ExpensesSummary />
       <span class="flex w-[90%] max-h-[15%] sm:max-h-[50%] h-full gap-4">
         <TransactionCount />
-        <PiggyBank />
+        <BudgetChart />
       </span>
     </span>
   </div>

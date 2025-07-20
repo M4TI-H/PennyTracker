@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 import Navigation from "@/components/navigation/Navigation.vue";
 import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
+import PiggyBank from "@/components/savings/PiggyBank.vue";
 import Goal from "@/components/savings/Goal.vue";
 import NewGoal from "@/components/savings/NewGoal.vue";
 import useScreenSize from "@/composables/screenSize.ts";
@@ -38,6 +39,7 @@ onMounted(async () => {
     <Navigation v-if="screenWidth >= smallW" :screenWidth="screenWidth"/>
     <CompactNavigation v-else/>
     <span class="max-w-[96rem] h-auto w-full flex flex-wrap sm:flex-row sm:flex-wrap gap-8 overflow-y-auto">
+      <PiggyBank />
       <Goal v-for="goal in savingsData" :key="goal.id" :goal="goal" @refresh="fetchSavings"/>
       <NewGoal @post-goal="fetchSavings"/>
     </span>
