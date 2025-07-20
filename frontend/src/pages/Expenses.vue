@@ -8,7 +8,7 @@ import RecentTransactions from "../components/expenses/transaction-history/Recen
 import AllTransactions from "../components/expenses/transaction-history/AllTransactions.vue";
 import ExpensesChart from "../components/expenses/expenses-summary/ExpensesChart.vue";
 import useScreenSize from "@/composables/screenSize.ts";
-import fetchAccounts from "@/composables/fetchAccounts.ts";
+import { fetchAccounts } from "@/composables/fetchAccounts.ts";
 import fetchExpenseCategories from "@/composables/fetchCategories.ts";
 import type { Category, Account } from "@/types/options";
 

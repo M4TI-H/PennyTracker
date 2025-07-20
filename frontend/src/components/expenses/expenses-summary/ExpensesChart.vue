@@ -78,25 +78,25 @@ const refreshData = async () => {
 
 const categoryChartData = ref<ExpensesByCategoryChart>({
   category: [],
-  method: [],
+  method: []
 });
 
 const methodChartData = ref<ExpensesByMethodChart>({
-  category: [],
   method: [],
+  category: []
 });
 
 watch(expenses, (newValue) => {
   if (selectedFilter.value === "category") {
     categoryChartData.value = {
       category: newValue.map(e => e.category),
-      method: newValue.map(e => e.method),
+      method: newValue.map(e => e.method)
     };
   } 
   else if (selectedFilter.value === "method") {
     methodChartData.value = {
       method: newValue.map(e => e.method),
-      category: newValue.map(e => e.category),
+      category: newValue.map(e => e.category)
     };
   }
 });

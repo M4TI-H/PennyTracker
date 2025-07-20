@@ -270,6 +270,28 @@ def fetch_accounts(db: Session = Depends(get_db), user_id: int = Query()):
   rows = db.execute(query).all()
   return [dict(row._mapping) for row in rows]
 
+
+#fetch top accounts
+@router.get("/fetch_top_accounts/", response_model=List[schemas.Account])
+def fetch_top_accounts(db: Session = Depends(get_db), user_id: int = Query()):
+  query = sa.select(
+    accounts,
+    sa.func.coalesce(sa.func.sum(transactions.c.amount), 0).label("expenses"),
+  ).outerjoin(
+    transactions,
+    transactions.c.method == accounts.c.id
+  ).where(
+    accounts.c.user_id == user_id,
+  ).group_by(
+    accounts.c.id
+  ).order_by(
+    sa.func.coalesce(sa.func.sum(transactions.c.amount), 0).desc()
+  ).limit(3)
+
+  rows = db.execute(query).all()
+  return [dict(row._mapping) for row in rows]
+
+
 #create new account 
 @router.post("/new_account/")
 def add_new_account(account_data: schemas.NewAccount, db: Session = Depends(get_db)):

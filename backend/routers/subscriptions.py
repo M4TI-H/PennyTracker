@@ -27,3 +27,16 @@ def post_new_subscription(subscription_data: schemas.NewSubscription, db: Sessio
   query = sa.insert(subscriptions).values(**subscription_data.model_dump())
   db.execute(query)
   db.commit()
+
+#delete single subscription
+@router.delete("/delete_one/")
+def delete_subscription(db: Session = Depends(get_db), user_id: int = Query(), subscription_id: int = Query()):
+  query = sa.delete(
+    subscriptions
+  ).where(
+    subscriptions.c.id == subscription_id,
+    subscriptions.c.user_id == user_id
+  )
+
+  db.execute(query)
+  db.commit()

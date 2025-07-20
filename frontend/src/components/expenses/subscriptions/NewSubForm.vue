@@ -30,7 +30,7 @@ const closeForm = () => {
   emit("close");
 }
 
-const frequencies = ["Daily", "Weekly", "Monthly", "Annually"];
+const frequencies = ["Daily", "Weekly", "Monthly", "Yearly"];
 
 const postNewSubscription = async(user_id: number) => {
   console.table(newSubData.value);

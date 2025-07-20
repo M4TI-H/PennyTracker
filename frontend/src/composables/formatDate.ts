@@ -1,6 +1,6 @@
-// @ts-nocheck
-export default function formatDate(date) {
-  const dateOptions = {
+//function return formatted date in DD/MM/YYYY hh:mm format
+export default function formatDate(date: Date): string {
+  const dateOptions: Intl.DateTimeFormatOptions = {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -9,5 +9,5 @@ export default function formatDate(date) {
     hour12: true
   };
 
-  return date.toLocaleString("en-GB", dateOptions).replace(',', '');;
+  return date.toLocaleString("en-GB", dateOptions).replace(',', '');
 }

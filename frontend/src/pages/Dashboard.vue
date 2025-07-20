@@ -6,21 +6,18 @@ import NameCard from "@/components/dashboard/NameCard.vue";
 import PiggyBank from "@/components/dashboard/PiggyBank.vue";
 import ExpensesSummary from "@/components/dashboard/ExpensesSummary.vue";
 import AccountView from "@/components/options/AccountView.vue";
-import fetchAccounts from "@/composables/fetchAccounts.ts";
+import { fetchTopAccounts } from "@/composables/fetchAccounts.ts";
 import useScreenSize from "@/composables/screenSize.ts";
 import TransactionCount from "@/components/dashboard/TransactionCount.vue";
 import type { Account } from "@/types/options";
-import type { TransactionCountType } from "@/types/transactions";
-import { fetchTransactionsCount, fetchTotalMonthlySavings } from "@/composables/dashboardDataFetches.ts"
 
 const smallW = 640;
 const {screenWidth, screenHeight} = useScreenSize();
 
-
 const accountsData = ref<Account[]>([]);
 
 const refreshAccounts = async () => {
-  accountsData.value = await fetchAccounts(2);
+  accountsData.value = await fetchTopAccounts(2);
 }
 
 onMounted(async() => {

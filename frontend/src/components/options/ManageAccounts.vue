@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref, watchEffect } from "vue";
 import AccountView from "./AccountView.vue";
-import fetchAccounts from "@/composables/fetchAccounts.ts";
+import { fetchAccounts } from "@/composables/fetchAccounts.ts";
 import type { Account } from "@/types/options";
 const displayNewAccount = ref(false);
 const displayDeleteAccount = ref(false);
-
 
 const accountsData = ref<Account[]>([]);
 const refreshAccounts = async () => {

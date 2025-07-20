@@ -28,7 +28,6 @@ export async function fetchTransactionsMonthly(user_id: number) {
     }
 
     return await response.json();
-
   }
   catch (error) {
     console.error(`An error has occured while fetching transactions data: ${error}`);
