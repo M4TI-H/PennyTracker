@@ -8,6 +8,7 @@ import Expenses from './pages/Expenses.vue';
 import Savings from './pages/Savings.vue';
 import Options from './pages/Options.vue';
 import Login from './pages/Login.vue';
+import Budget from './pages/Budget.vue';
 
 const routes = [
   { path: "/", component: Dashboard},
@@ -15,6 +16,7 @@ const routes = [
   { path: "/savings", component: Savings},
   { path: "/options", component: Options},
   { path: "/login", component: Login},
+  { path: "/budget", component: Budget},
 ];
 
 const router = createRouter({
