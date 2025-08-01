@@ -1,30 +1,23 @@
-<script setup>
-defineProps({
-  transactionsData: Array
-});
+<script setup lang="ts">
+import useTransactions from '@/composables/useTransactions';
+import type { Transaction } from '@/types/transactions';
+import { onMounted } from 'vue';
 
-const emit = defineEmits(["deletion"]);
+const { transactionsData } = defineProps<{
+  transactionsData: Transaction[]
+}>();
 
-const deleteTransaction = async(user_id, transaction) => {
-  try {
-    const url = new URL("http://localhost:8000/transactions/delete_one");
-    url.searchParams.append("user_id", user_id);
-    url.searchParams.append("transaction_id", transaction);
+const emit = defineEmits<{
+  (e: "deletion"): void
+}>();
 
-    const response = await fetch(url.toString(), {
-      method: "DELETE"
-    });
+const { deleteTransaction } = useTransactions();
 
-    if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
-    }
-
-    emit("deletion");
-  }
-  catch (error) {
-     console.error(`An error has occured while deleting a transaction: ${error}`);
-  }
+const handleDelete = async (user_id: number, transaction_id: number) => {
+  await deleteTransaction(user_id, transaction_id);
+  emit("deletion");
 }
+
 </script>
 
 <template>
@@ -42,6 +35,6 @@ const deleteTransaction = async(user_id, transaction) => {
     <p class="w-[20%] text-sm text-neutral-800 font-semibold">{{ expense.category_name }}</p>
     <p class="w-[15%] text-sm text-neutral-800 font-semibold">{{ expense.method_name }}</p>
     <p class="w-[15%] text-sm text-neutral-800 font-semibold">{{ expense.date }}</p>
-    <button @click="deleteTransaction(2, expense.id)" class="w-[5%] hover:cursor-pointer transition ease-in-out duration-200 hover:scale-120"><i class="pi pi-trash"></i></button>
+    <button @click="handleDelete(2, expense.id)" class="w-[5%] hover:cursor-pointer transition ease-in-out duration-200 hover:scale-120"><i class="pi pi-trash"></i></button>
   </div>
 </template>

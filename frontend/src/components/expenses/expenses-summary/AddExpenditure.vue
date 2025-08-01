@@ -3,58 +3,31 @@ import { ref } from "vue";
 import formatDate from "@/composables/formatDate";
 import type { Category, Account } from "@/types/options";
 import type { NewTransaction } from "@/types/transactions";
+import useTransactions from "@/composables/useTransactions";
 
 const { expenseCategories, accountsData } = defineProps<{
   expenseCategories: Category[],
   accountsData: Account[]
 }>();
 
+const emit = defineEmits<{
+  (e: "submit"): void
+}>();
+
+const { postNewExpenditure } = useTransactions();
+
 const newExpData = ref<NewTransaction>({
-  name: undefined,
+  name: "",
   amount: undefined,
   method: undefined,
   category: undefined,
 });
 
-const emit = defineEmits<{
-  (e: "submit"): void
-}>();
-
-const postNewExpenditure = async(user_id: number) => {
-  try {
-    const response = await fetch("http://localhost:8000/transactions/new_expenditure/", {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: newExpData.value.name, 
-        amount: newExpData.value.amount ? newExpData.value.amount : 0,
-        method: newExpData.value.method ? newExpData.value.method : -1, 
-        category: newExpData.value.category ? newExpData.value.category : -1,
-        date: formatDate(new Date()).slice(0, 10),
-        user_id: user_id
-      })
-    });
-
-    if (!response.ok) {
-      const err = await response.json()
-      throw new Error(err.detail); 
-    }
-
-    newExpData.value = {
-      name: undefined,
-      amount: undefined,
-      method: undefined,
-      category: undefined,
-    };
-
-    emit("submit");
-  }
-  catch (error) {
-    console.error(`An error has occured while posting transactions data: ${error}`);
-  }
+const handlePostExpense = async () => {
+  await postNewExpenditure(newExpData.value, 2);
+  emit("submit");
 }
+
 </script>
 <template>
   <div class="w-[25%] flex flex-col items-center gap-6">
@@ -83,7 +56,7 @@ const postNewExpenditure = async(user_id: number) => {
         <option :value="category.id" v-for="category in expenseCategories" :key="category.id">{{ category.name }}</option>
       </select>
     </span>
-    <button @click="postNewExpenditure(2)"
+    <button @click="handlePostExpense"
       class="w-[50%] h-10 rounded-3xl bg-neutral-800 text-sm text-[#E9ECEF]
     border-neutral-800 border-2 hover:cursor-pointer hover:bg-[#588157]
       transition ease-in-out duration-200">Confirm</button>

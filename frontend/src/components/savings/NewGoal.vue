@@ -12,7 +12,7 @@ const showForm = () => displayForm.value = true;
 const hideForm = () => displayForm.value = false;
 
 const newGoalData = ref<NewGoal>({
-  title: undefined,
+  title: "",
   amount: null,
   cover: "#000000",
   user_id: 2

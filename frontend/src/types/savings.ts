@@ -19,7 +19,7 @@ export interface GoalType {
 }
 
 export interface NewGoal {
-  title: string | undefined;
+  title: string;
   amount: number | null;
   cover: string;
   user_id: number;

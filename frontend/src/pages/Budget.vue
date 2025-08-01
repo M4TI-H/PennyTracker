@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import Navigation from "@/components/navigation/Navigation.vue";
 import useScreenSize from "@/composables/useScreenSize";
 import BudgetSection from "@/components/budget/BudgetSection.vue";
+import BudgetDistribution from "@/components/budget/BudgetDistribution.vue";
 
 const smallW = 640;
 const {screenWidth, screenHeight} = useScreenSize();
@@ -12,15 +13,9 @@ const {screenWidth, screenHeight} = useScreenSize();
 <template>
   <div class="fixed flex w-full h-full justify-around bg-[#444] sm:py-16 ">
     <Navigation v-if="screenWidth >= smallW" :screenWidth="screenWidth"/>
-
     <span class="w-[96rem] flex flex-row flex-wrap items-start gap-8">
       <BudgetSection />
-      <div class="w-[35%] h-full flex flex-col gap-4">
-        <div class="h-full w-full bg-[#E9ECEF] flex flex-col p-4
-          rounded-xl shadow-xl">
-          <p class="text-3xl text-[#212529] font-semibold">nwm co</p>
-        </div>
-      </div>
+      <BudgetDistribution />
     </span>
   </div>
 </template>

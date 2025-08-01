@@ -1,55 +1,16 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import ExpensesData from './ExpensesData.vue';
-import type { Expense, ExpensesByCategoryChart, ExpensesByMethodChart } from '@/types/transactions';
+import type { ExpensesByCategoryChart, ExpensesByMethodChart } from '@/types/transactions';
 import CategoryChart from './CategoryChart.vue';
 import MethodChart from './MethodChart.vue';
 import getMonthName from '@/composables/getMonthName';
+import useTransactions from '@/composables/useTransactions';
 
 const selectedFilter = ref<string>("category");
-const expenses = ref<Expense[]>([]);
-const totalExpenses = ref<number>(0.0);
 const monthId = ref<string>("");
 
-const fetchExpensesByCategory = async (user_id: number, month: string) => {
-  try {
-    const url = new URL("http://localhost:8000/transactions/fetch_by_category");
-    url.searchParams.append("user_id", user_id.toString());
-    url.searchParams.append("month", month);
-    
-    const response = await fetch(url.toString());
-
-    if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
-    }
-    const fetchedData = await response.json();
-    expenses.value = fetchedData.expenses;
-    totalExpenses.value = fetchedData.total;
-  }
-  catch (error) {
-    console.error(`An error has occured while fetching categories data: ${error}`);
-  }
-}
-
-const fetchExpensesByMethod = async (user_id: number, month: string) => {
-  try {
-    const url = new URL("http://localhost:8000/transactions/fetch_by_method");
-    url.searchParams.append("user_id", user_id.toString());
-    url.searchParams.append("month", month);
-    
-    const response = await fetch(url.toString());
-
-    if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
-    }
-    const fetchedData = await response.json();
-    expenses.value = fetchedData.expenses;
-    totalExpenses.value = fetchedData.total;
-  }
-  catch (error) {
-    console.error(`An error has occured while fetching categories data: ${error}`);
-  }
-}
+const { expenses, totalExpenses, fetchExpensesByCategory, fetchExpensesByMethod } = useTransactions();
 
 function getMonths(): { id: number; month_num: string; month_name: string, year: string }[] {
   const result: { id: number; month_num: string; month_name: string, year: string }[] = [];

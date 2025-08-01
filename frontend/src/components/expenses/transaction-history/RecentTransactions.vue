@@ -1,35 +1,24 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from "vue";
+import { onMounted, computed } from "vue";
 import ExpensesView from "./ExpensesView.vue";
+import useTransactions from "@/composables/useTransactions";
 
 defineProps<{ visible: boolean }>();
+
 const emit = defineEmits<{
   (e: "update:visible", value: boolean): void
   (e: "deletion"): void
 }>();
 
-const transactionsData = ref([]);
+const { transactionsData, fetchRecentTransactions } = useTransactions();
+
 const isFull = computed(() => transactionsData.value.length === 4);
-
-const fetchRecentTransactions = async() => {
-  try {
-    const response = await fetch("http://localhost:8000/transactions/fetch_recent/");
-    if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
-    }
-
-    transactionsData.value = await response.json();
-  }
-  catch (error) {
-    console.error(`An error has occured while fetching transactions data: ${error}`);
-  }
-}
 
 //switch display state of all expenses component
 const switchShowAll = () => emit("update:visible", true);
 
-const transactionDeletion = () => {
-  fetchRecentTransactions();
+const transactionDeletion = async () => {
+  await fetchRecentTransactions();
   emit("deletion");
 }
 
@@ -38,7 +27,6 @@ defineExpose({
 });
 
 onMounted(async () => fetchRecentTransactions());
-
 </script>
 
 <template>

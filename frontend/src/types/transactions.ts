@@ -10,7 +10,7 @@ export interface Transaction {
 }
 
 export interface NewTransaction {
-  name: string | undefined;
+  name: string;
   amount: number | undefined;
   method: number | undefined;
   category: number | undefined,

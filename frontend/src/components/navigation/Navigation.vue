@@ -43,7 +43,7 @@ const mediumW = 768;
       text-sm font-semibold text-neutral-800 flex items-center justify-center gap-2"
     >
     <span class="w-[50%] flex justify-between items-center">
-      <i class="pi pi-wallet"></i>Budget
+      <i class="pi pi-chart-pie"></i>Budget
     </span>
     </RouterLink>
     <RouterLink tag="button" to="/options" class="w-full h-1/10 bg-none hover:bg-[#3A5A40]
