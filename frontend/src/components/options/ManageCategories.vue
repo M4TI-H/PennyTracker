@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
-import fetchExpenseCategories from "@/composables/fetchCategories";
+import fetchExpenseCategories from "@/composables/useExpenseCategories";
 import type { Category } from "@/types/options";
 
 const displayNewCategory = ref<boolean>(false);

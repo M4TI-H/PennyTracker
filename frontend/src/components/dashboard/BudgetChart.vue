@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import getMonthName from "@/composables/getMonthName";
-
 </script>
 
 <template>

@@ -1,80 +1,22 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import NewSubForm from "./NewSubForm.vue";
-import type { Subscription } from "@/types/transactions";
-import formatDate from "@/composables/formatDate";
+import useSubscriptions from "@/composables/useSubscriptions";
 
 const displayForm = ref<boolean>(false);
+
+const { subscriptionsData, fetchSubscriptions, deleteSubscription, calculateNextPayment } = useSubscriptions();
+
+const handleDelete = async (sub_id: number) => {
+  await deleteSubscription(2, sub_id)
+  await fetchSubscriptions(2);
+}
 
 const switchFormDisplay = () => {
   displayForm.value = !displayForm.value;
 }
 
-const subscriptionsData = ref<Subscription[]>([]);
-
-const fetchSubscriptions = async(user_id: number) => {
-  try {
-    const response = await fetch("http://localhost:8000/subscriptions/fetch_all");
-    
-    if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
-    }
-
-    subscriptionsData.value = await response.json();
-  }
-  catch (error) {
-    console.error(`An error has occured while fetching transactions data: ${error}`);
-  }
-}
-
-function calculateNextPayment(startDate: string, frequency: string): string {
-  const now = new Date();
-  let nextDate = new Date(startDate);
-
-  while (nextDate <= now) {
-    switch (frequency) {
-      case "Daily":
-        nextDate.setDate(nextDate.getDate() + 1);
-        break;
-      case "Weekly":
-        nextDate.setDate(nextDate.getDate() + 7);
-        break;
-      case "Monthly":
-        nextDate.setMonth(nextDate.getMonth() + 1);
-        break;
-      case "yearly":
-        nextDate.setFullYear(nextDate.getFullYear() + 1);
-        break;
-    }
-  }
-
-  return formatDate(nextDate);
-}
-
-const refreshSubscriptions = async (user_id: number) => await fetchSubscriptions(user_id);
-
-const deleteSubscription = async(user_id: number, subscription: number) => {
-  try {
-    const url = new URL("http://localhost:8000/subscriptions/delete_one");
-    url.searchParams.append("user_id", user_id.toString());
-    url.searchParams.append("subscription_id", subscription.toString());
-
-    const response = await fetch(url.toString(), {
-      method: "DELETE"
-    });
-
-    if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
-    }
-
-    refreshSubscriptions(user_id);
-  }
-  catch (error) {
-     console.error(`An error has occured while deleting a subscription: ${error}`);
-  }
-}
-
-onMounted(async () => refreshSubscriptions(2));
+onMounted(() => fetchSubscriptions(2));
 
 </script>
 
@@ -100,7 +42,7 @@ onMounted(async () => refreshSubscriptions(2));
         <p class="w-[20%] text-sm text-neutral-800 font-semibold">{{ sub.amount }}</p>
         <p class="w-[20%] text-sm text-neutral-800 font-semibold">{{ sub.frequency }}</p>
         <p class="w-[25%] text-sm text-neutral-800 font-semibold">{{ calculateNextPayment(sub.start_date, sub.frequency).slice(0, 10) }}</p>
-        <button @click="deleteSubscription(2, sub.id)" class="w-[10%] hover:cursor-pointer transition ease-in-out duration-200 hover:scale-120"><i class="pi pi-trash"></i></button>
+        <button @click="handleDelete(sub.id)" class="w-[10%] hover:cursor-pointer transition ease-in-out duration-200 hover:scale-120"><i class="pi pi-trash"></i></button>
       </div>
     </div>
     

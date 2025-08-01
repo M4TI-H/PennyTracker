@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import formatDate from "@/composables/formatDate.js";
 import type { NewGoal } from "@/types/savings";
+import useSavings from "@/composables/useSavings";
 
-const displayForm = ref<boolean>(false);
 const emit = defineEmits(["post-goal"]);
+
+const { postNewGoal } = useSavings();
+const displayForm = ref<boolean>(false);
 
 const showForm = () => displayForm.value = true;
 const hideForm = () => displayForm.value = false;
@@ -16,42 +18,10 @@ const newGoalData = ref<NewGoal>({
   user_id: 2
 });
 
-const postNewGoal = async() => {
-  try {
-    const response = await fetch("http://localhost:8000/savings/new_goal/", {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        title: newGoalData.value.title, 
-        goal_amount: newGoalData.value.amount ? newGoalData.value.amount : -1, 
-        current_amount: 0.0,
-        cover: newGoalData.value.cover || "#000000",
-        finished: 0,
-        creation_date: formatDate(new Date()),
-        user_id: newGoalData.value.user_id
-      })
-    });
-
-    if (!response.ok) {
-      const err = await response.json()
-      throw new Error(err.detail);
-    }
-    
-    newGoalData.value = {
-      title: undefined,
-      amount: null,
-      cover: "#000000",
-      user_id: 2
-    };
-
-    hideForm();
-    emit("post-goal");
-  }
-  catch (error) {
-    console.error(`An error has occured while posting savings data: ${error}`);
-  }
+const handlePostGoal = () => {
+  postNewGoal(newGoalData.value);
+  hideForm();
+  emit("post-goal");
 }
 
 </script>
@@ -93,7 +63,7 @@ const postNewGoal = async() => {
           </span>
         </div>
        
-        <button @click="postNewGoal" class="w-[20%] h-10 rounded-3xl mt-auto bg-neutral-800 text-sm text-[#E9ECEF]
+        <button @click="handlePostGoal" class="w-[20%] h-10 rounded-3xl mt-auto bg-neutral-800 text-sm text-[#E9ECEF]
         border-neutral-800 border-2 hover:cursor-pointer hover:bg-[#588157]
           transition ease-in-out duration-200 mb-1"
         >Set</button>

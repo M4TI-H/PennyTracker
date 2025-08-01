@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import formatDate from "@/composables/formatDate";
 import type { NewSubscription } from "@/types/transactions";
+import useSubscriptions from "@/composables/useSubscriptions";
 
 const { displayForm} = defineProps<{
   displayForm: boolean,
@@ -12,19 +12,21 @@ const emit = defineEmits<{
   (e: "submit"): void
 }>();
 
+const { postNewSubscription } = useSubscriptions();
+
 const newSubData = ref<NewSubscription>({
-  service: undefined,
-  amount: undefined,
-  start_date: undefined,
-  frequency: undefined,
+  service: "",
+  amount: 0,
+  start_date: "",
+  frequency: "",
 });
 
 const closeForm = () => {
   newSubData.value = {
-    service: undefined,
-    amount: undefined,
-    start_date: undefined,
-    frequency: undefined
+    service: "",
+    amount: 0,
+    start_date: "",
+    frequency: ""
   }
 
   emit("close");
@@ -32,40 +34,10 @@ const closeForm = () => {
 
 const frequencies = ["Daily", "Weekly", "Monthly", "Yearly"];
 
-const postNewSubscription = async(user_id: number) => {
-  console.table(newSubData.value);
-  try {
-    const response = await fetch("http://localhost:8000/subscriptions/new_subscription/", {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        service: newSubData.value.service, 
-        amount: newSubData.value.amount, 
-        start_date: formatDate(newSubData.value.start_date).slice(0, 10),
-        frequency: newSubData.value.frequency,
-        user_id: user_id
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
-    }
-
-    newSubData.value = {
-      service: undefined,
-      amount: undefined,
-      start_date: undefined,
-      frequency: undefined,
-    };
-
-    emit("close");
-    emit("submit")
-  }
-  catch (error) {
-    console.error(`An error has occured while posting subscriptions data: ${error}`);
-  }
+const handlePostSub = async () => {
+  await postNewSubscription(newSubData.value, 2);
+  emit("close");
+  emit("submit");
 }
 
 </script>
@@ -99,7 +71,7 @@ const postNewSubscription = async(user_id: number) => {
           <option v-for="frequency in frequencies" :value="frequency" :key="frequency">{{ frequency }}</option> 
         </select>
       </span>
-      <button @click="postNewSubscription(2)"
+      <button @click="handlePostSub"
       class="w-32 h-10 rounded-3xl bg-neutral-800 text-sm text-[#E9ECEF]
         border-neutral-800 border-2 hover:cursor-pointer hover:bg-[#588157]
         transition ease-in-out duration-200"

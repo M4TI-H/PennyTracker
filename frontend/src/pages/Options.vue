@@ -3,7 +3,7 @@ import Navigation from "@/components/navigation/Navigation.vue";
 import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
 import ManageCategories from "@/components/options/ManageCategories.vue";
 import ManageAccounts from "@/components/options/ManageAccounts.vue";
-import useScreenSize from "@/composables/screenSize.ts";
+import useScreenSize from "@/composables/useScreenSize";
 
 const smallW = 640;
 

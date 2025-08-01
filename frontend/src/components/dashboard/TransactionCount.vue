@@ -2,19 +2,11 @@
 import { onMounted, ref, watch } from "vue";
 import type { TransactionCountType, MonthInfo } from "@/types/transactions";
 import getMonthName from "@/composables/getMonthName";
-import { fetchTransactionsCount } from "@/composables/dashboardDataFetches";
+import { fetchTransactionsCount } from "@/composables/useTransactionsCount";
 
 const transactionsCountData = ref(<TransactionCountType[]>[]);
 const showDetailsOfDay = ref<string | null>(null);
 let monthData = ref<MonthInfo[]>([]);
-
-const onTileHoverEnter = (day: string) => {
-  showDetailsOfDay.value = day;
-}
-
-const onTileHoverLeave = () => {
-  showDetailsOfDay.value = null;
-}
 
 function getMonthLen(){
   const now = new Date();
@@ -86,7 +78,8 @@ onMounted(async() => {
   }));
 
   monthData.value = getMonthLen();
-})
+});
+
 </script>
 
 <template>
@@ -99,7 +92,7 @@ onMounted(async() => {
         <p class="text-neutral-800 text-xl font-semibold">{{ getMonthName(month.month) }}</p>
         <div class="flex flex-wrap gap-1">
           <div v-for="day in month.length" :key="day"
-            @mouseenter="onTileHoverEnter(formatDate(day, month.month, month.year))" @mouseleave="onTileHoverLeave"
+            @mouseleave="showDetailsOfDay = null" @mouseenter="showDetailsOfDay = formatDate(day, month.month, month.year)"
             class="relative size-8 flex justify-center items-center rounded-md hover:bg-[#588157]/100 hover:cursor-default"
             :class="getOpacity(getTransactionLevel(formatDate(day, month.month, month.year)))"
           > 

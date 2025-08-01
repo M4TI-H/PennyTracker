@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import Navigation from "@/components/navigation/Navigation.vue";
-import useScreenSize from "@/composables/screenSize.ts";
+import useScreenSize from "@/composables/useScreenSize";
 import BudgetSection from "@/components/budget/BudgetSection.vue";
 
 const smallW = 640;

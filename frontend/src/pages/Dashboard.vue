@@ -1,23 +1,19 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { onMounted } from "vue";
 import Navigation from "@/components/navigation/Navigation.vue";
-import CompactNavigation from "@/components/navigation/CompactNavigation.vue";
 import NameCard from "@/components/dashboard/NameCard.vue";
 import ExpensesSummary from "@/components/dashboard/ExpensesSummary.vue";
 import AccountView from "@/components/options/AccountView.vue";
-import { fetchTopAccounts } from "@/composables/fetchAccounts.ts";
-import useScreenSize from "@/composables/screenSize.ts";
+import useAccounts from "@/composables/useAccounts";
+import useScreenSize from "@/composables/useScreenSize";
 import TransactionCount from "@/components/dashboard/TransactionCount.vue";
-import type { Account } from "@/types/options";
 import BudgetChart from "@/components/dashboard/BudgetChart.vue";
 
-const smallW = 640;
 const {screenWidth, screenHeight} = useScreenSize();
 
-const accountsData = ref<Account[]>([]);
-
-const refreshAccounts = async () => {
-  accountsData.value = await fetchTopAccounts(2);
+const { accountsData, fetchTopAccounts } = useAccounts();
+const refreshAccounts = () => {
+  fetchTopAccounts(2);
 }
 
 onMounted(async() => {
@@ -28,8 +24,7 @@ onMounted(async() => {
 <template>
   <div class="fixed flex w-full h-full justify-around bg-[#DAD7CD] sm:py-16 ">
     <!--Menu bar with buttons-->
-    <Navigation v-if="screenWidth >= smallW" :screenWidth="screenWidth"/>
-    <CompactNavigation v-else/>
+    <Navigation :screenWidth="screenWidth"/>
     <!--Cards grid-->
     <span class="max-w-[96rem] p-2 sm:p-0 flex flex-col sm:flex-row sm:flex-wrap items-center sm:items-start gap-4">
       <div class="sm:min-w-96 sm:max-w-[40%] sm:w-[30%] min-h-[30%] max-h-[10%] w-full flex flex-col gap-4">

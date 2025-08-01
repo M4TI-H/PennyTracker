@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { onMounted, ref, computed, watch } from "vue";
-import type { MonthlyTransactions, TransactionsChart } from "@/types/transactions";
-import { fetchTransactionsMonthly } from "@/composables/dashboardDataFetches";
+import { onMounted, ref, watch } from "vue";
+import type { TransactionsChart } from "@/types/transactions";
 import MonthlyExpensesChart from "./MonthlyExpensesChart.vue";
+import useMonthlyTransactions from "@/composables/useMonthlyTransactions"
 
-const monthlyTransactionsData = ref<MonthlyTransactions[]>([]);
 const chartData = ref<TransactionsChart>({
   month: [],
   total_expenses: [],
   number_of_transactions: []
 });
 
+const { monthlyTransactionsData, fetchMonthlyTransactions } = useMonthlyTransactions();
+const refreshData = () => {
+  fetchMonthlyTransactions(2);
+}
+
 function formatDate(date: string) {
   const [year, month] = date.split("-");
   const formattedDate = new Date(Number(year), parseInt(month, 10) - 1);
   return formattedDate.toLocaleString("en-US", { month: "long", year: "numeric" });
 }
-
-onMounted(async() => {
-  monthlyTransactionsData.value = await fetchTransactionsMonthly(2);
-});
 
 watch(monthlyTransactionsData, (newValue) => {
   chartData.value = {
@@ -29,6 +29,7 @@ watch(monthlyTransactionsData, (newValue) => {
   };
 });
 
+onMounted(refreshData);
 </script>
 
 <template>

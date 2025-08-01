@@ -32,10 +32,10 @@ export interface Subscription {
 }
 
 export interface NewSubscription {
-  service: string | undefined;
-  amount: number | undefined;
-  frequency: string | undefined;
-  start_date: string | undefined;
+  service: string;
+  amount: number;
+  frequency: string;
+  start_date: string;
 }
 
 export interface TransactionCountType {

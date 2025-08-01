@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import formatDate from '@/composables/formatDate';
 import type { GoalType } from '@/types/savings';
+import useSavings from '@/composables/useSavings';
 
 const {showWithdraw, showDeposit, goal} = defineProps<{
   showWithdraw: boolean,
@@ -11,6 +11,7 @@ const {showWithdraw, showDeposit, goal} = defineProps<{
 
 const emit = defineEmits(["close", "post-action"]);
 
+const { postNewGoalAction } = useSavings();
 const amount = ref<number | null>(null);
 
 const action = computed<string | null>(() => {
@@ -19,44 +20,20 @@ const action = computed<string | null>(() => {
   else return null;
 });
 
-const postNewGoalAction = async() => {
+const handlePostAction = async () => {
   const inputAmount = amount.value;
-  try {
-    const response = await fetch("http://localhost:8000/savings/new_goal_action/", {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        type: action.value, 
-        amount: inputAmount, 
-        date: formatDate(new Date()),
-        goal_id: goal.id,
-        user_id: goal.user_id
-      })
-    });
-
-    if (!response.ok) {
-      const err = await response.json()
-      throw new Error(err.detail);
-    }
-
-    const result = await response.json();
-
-    if (result.status === "success"){
-      emit("post-action", { amount: inputAmount, action: action.value });
-      amount.value = null;
-    }
-    else {
-      console.error(`Backend error: ${result.detail}`)
-    }
+  if (!inputAmount) {
+    console.log("Insert amount!");
+    return;
   }
-  catch (error) {
-    console.error(`An error has occured while posting savings actions data: ${error}`);
+
+  if (await postNewGoalAction(action.value!, inputAmount, goal) === "success") {
+    emit("post-action", { amount: amount.value, action: action.value });
   }
+  amount.value = null;
 }
 
-function onClose() {
+const onClose = () => {
   amount.value = null;
   emit('close');
 }
@@ -70,7 +47,7 @@ function onClose() {
           :placeholder="showWithdraw ? 'Withdraw amount' : (showDeposit ? 'Deposit amount' : '')"
           class="w-[80%] h-full px-2 border-2 border-neutral-800 rounded-l-lg border-r-0 text-md font-medium focus:outline-0"
         />
-        <button @click="postNewGoalAction"
+        <button @click="handlePostAction"
           class="w-[20%] h-full rounded-r-lg bg-none font-semibold text-sm text-neutral-800 
         border-neutral-800 border-2 hover:cursor-pointer hover:text-[#E9ECEF]
           transition ease-in-out duration-200" 

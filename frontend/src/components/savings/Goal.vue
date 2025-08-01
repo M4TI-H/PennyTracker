@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { onUpdated, ref, watch } from "vue";
+import { onMounted, onUpdated, ref, watch } from "vue";
 import ActionForm from "./ActionForm.vue";
 import type { GoalType, SavingAction } from "@/types/savings";
-
+import useSavings from "@/composables/useSavings";
 
 const { goal } = defineProps<{ goal: GoalType }>();
 const emit = defineEmits(["refresh"]);
+
+const { actionsData, deleteGoal, fetchGoalActions, depositFunds } = useSavings();
 
 const displayButtons = ref<boolean>(true);
 const showDeposit = ref<boolean>(false);
 const showWithdraw = ref<boolean>(false);
 const goalPercentage = ref<string>("0%");
-const actionsData = ref<SavingAction[]>([]);
 
 const hideInput = () => {
   showDeposit.value = false;
@@ -29,84 +30,17 @@ const displayWithdrawInput = () => {
   displayButtons.value = false;
 }
 
-const depositFunds = async(amount: number, type: string) => {
-  try {
-    const url = new URL(`http://localhost:8000/savings/${type}/`);
-    url.searchParams.append("user_id", goal.user_id.toString());
-    url.searchParams.append("goal_id", goal.id.toString());
-    url.searchParams.append("amount", amount.toString());
-    
-    const response = await fetch(url.toString(), {
-      method: "PUT"
-    });
-
-    if (!response.ok) {
-      const err = await response.json()
-      throw new Error(err.detail);
-    }
-
-    const result = await response.json();
-
-    if (result.status === "success"){
-      emit("refresh");
-    }
-    else {
-      console.error(`Backend error: ${result.detail}`)
-    }
-  }
-  catch (error) {
-    console.error(`An error has occured while fetching savings actions data: ${error}`);
-  }
+const handleDelete = async () => {
+  await deleteGoal(goal.user_id, goal.id);
+  emit("refresh");
 }
 
-const fetchSavingActions = async(goal_id: number, user_id: number) => {
-  try {
-    const url = new URL("http://localhost:8000/savings/fetch_actions/");
-    url.searchParams.append("user_id", user_id.toString());
-    url.searchParams.append("goal_id", goal_id.toString());
-    
-    const response = await fetch(url.toString());
-
-    if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
-    }
-
-    actionsData.value = await response.json();
-  }
-  catch (error) {
-    console.error(`An error has occured while fetching savings actions data: ${error}`);
-  }
-}
-
-const deleteGoal = async(user_id: number, transaction_id: number) => {
-  try {
-    const url = new URL("http://localhost:8000/savings/delete_goal/");
-    url.searchParams.append("user_id", user_id.toString());
-    url.searchParams.append("goal_id", transaction_id.toString());
-
-    const response = await fetch(url.toString(), {
-      method: "DELETE"
-    });
-
-    if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
-    }
-
+const handleActionPost = async (amount: number, action: string) => {
+  fetchGoalActions(goal.id, 2);
+  if (await depositFunds(amount, action, goal) === "success") {
     emit("refresh");
   }
-  catch (error) {
-     console.error(`An error has occured while deleting a saving goal: ${error}`);
-  }
-}
-
-const handleActionPost = (amount: number, action: string) => {
-  fetchSavingActions(goal.id, 2);
-  depositFunds(amount, action);
   hideInput();
-}
-
-const onPostActions = ({amount, action}: {amount: number, action: string}) => {
-  handleActionPost(amount, action);
 }
 
 onUpdated(() => {
@@ -114,17 +48,24 @@ onUpdated(() => {
   goalPercentage.value = `${percentage}%`;
 });
 
-watch(() => goal?.id, (newGoalId) => {
+onMounted(() => {
+  const percentage = (goal.current_amount / goal.goal_amount) * 100;
+  goalPercentage.value = `${percentage}%`;
+
+  fetchGoalActions(goal.id, 2)
+})
+
+watch(() => goal.id, (newGoalId) => {
   if (newGoalId) {
-    fetchSavingActions(goal.id, 2)
+    fetchGoalActions(goal.id, 2)
   }
-},{ immediate: true });
+});
 
 </script>
 
 <template>
   <div class="relative w-172 h-64 flex flex-col items-start p-4 bg-[#E9ECEF] rounded-xl shadow-xl">
-    <button @click="deleteGoal(goal.user_id, goal.id)"
+    <button @click="handleDelete"
       class="absolute right-5 top-4 hover:cursor-pointer transition ease-in-out duration-200 hover:scale-120"
     >
       <i class="pi pi-trash"></i>
@@ -154,7 +95,7 @@ watch(() => goal?.id, (newGoalId) => {
           transition ease-in-out duration-200">Withdraw</button>
       </div>
       <ActionForm :showDeposit="showDeposit" :showWithdraw="showWithdraw" :goal="goal"
-      @close="hideInput" @post-action="onPostActions"/>
+      @close="hideInput" @post-action="({ amount, action}) => handleActionPost(amount, action)"/>
     </div>
     <div class="w-full h-[30%] flex flex-col gap-1">
       <p class="text-2xl font-semibold text-neutral-800 self-end" :class="{'line-through': goal.finished === 1}">${{ goal.current_amount }} / ${{ goal.goal_amount }}</p>

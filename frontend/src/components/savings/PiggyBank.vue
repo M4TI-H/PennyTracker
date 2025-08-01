@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import useScreenSize from "@/composables/screenSize.ts";
-import { fetchTotalMonthlySavings } from "@/composables/dashboardDataFetches";
-
+import { ref, onMounted, onUpdated, watchEffect } from "vue";
+import useScreenSize from "@/composables/useScreenSize";
+import useMonthlySavings from "@/composables/useSavings";
 const {screenWidth, screenHeight} = useScreenSize();
-const totalMonthlySavings = ref<number>(0);
+
 const month = ref<string>("");
+const { totalMonthlySavings, fetchTotalMonthlySavings } = useMonthlySavings();
+
+const refreshData = () => {
+  fetchTotalMonthlySavings(2, month.value);
+}
 
 onMounted(async() => {
   month.value = (new Date().getMonth() + 1).toString().padStart(2, "0");
-  totalMonthlySavings.value = await fetchTotalMonthlySavings(2, month.value);
-})
+  refreshData();
+});
 
 </script>
 

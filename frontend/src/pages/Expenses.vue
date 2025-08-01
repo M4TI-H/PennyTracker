@@ -1,23 +1,25 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import Navigation from "../components/navigation/Navigation.vue";
-import CompactNavigation from "../components/navigation/CompactNavigation.vue";
 import AddExpenditure from "../components/expenses/expenses-summary/AddExpenditure.vue";
 import Subscriptions from "../components/expenses/subscriptions/Subscriptions.vue";
 import RecentTransactions from "../components/expenses/transaction-history/RecentTransactions.vue";
 import AllTransactions from "../components/expenses/transaction-history/AllTransactions.vue";
 import ExpensesChart from "../components/expenses/expenses-summary/ExpensesChart.vue";
-import useScreenSize from "@/composables/screenSize.ts";
-import { fetchAccounts } from "@/composables/fetchAccounts.ts";
-import fetchExpenseCategories from "@/composables/fetchCategories.ts";
-import type { Category, Account } from "@/types/options";
+import useScreenSize from "@/composables/useScreenSize";
+import useExpenseCategories from "@/composables/useExpenseCategories.ts";
+import useAccounts from "@/composables/useAccounts.ts";
 
-const smallW = 640;
 const {screenWidth, screenHeight} = useScreenSize();
 
 const showAllExpenses = ref(false);
-const expenseCategories = ref<Category[]>([]);
-const accountsData = ref<Account[]>([]);
+
+const { expenseCategories, fetchExpenseCategories } = useExpenseCategories();
+const { accountsData, fetchAccounts } = useAccounts();
+const refreshData = () => {
+  fetchExpenseCategories(2);
+  fetchAccounts(2);
+}
 
 type RecentTransactionsExpose = {
   fetchRecentTransactions: () => void;
@@ -35,17 +37,13 @@ const refreshTransactions = () => {
   transactionsByCategory.value?.refreshData();
 };
 
-onMounted(async() => {
-  expenseCategories.value = await fetchExpenseCategories(2),
-  accountsData.value = await fetchAccounts(2)
-});
+onMounted(refreshData);
 
 </script>
 <template>
   <div class="fixed flex w-full h-full justify-center gap-16 bg-[#DAD7CD] sm:py-16 ">
     <!--Menu bar with buttons-->
-    <Navigation v-if="screenWidth >= smallW" :screenWidth="screenWidth"/>
-    <CompactNavigation v-else/>
+    <Navigation :screenWidth="screenWidth"/>
     <span class="max-w-[96rem] h-auto w-full flex flex-col sm:flex-row sm:flex-wrap items-center justify-between sm:items-start">
       <div class="sm:max-w-[100%] w-full sm:min-w-128 sm:h-[54%] flex items-center bg-[#E9ECEF] p-4 rounded-xl shadow-xl">
         <AddExpenditure :expenseCategories="expenseCategories" :accountsData="accountsData" @submit="refreshTransactions"/>
