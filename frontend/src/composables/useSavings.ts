@@ -88,7 +88,8 @@ export default function useSavings() {
 
       actionsData.value = await response.json();
     }
-    catch (error) {
+    catch (error: any) {
+      errorMsg.value = error.message;
       console.error(`An error has occured while fetching savings actions data: ${error}`);
     }
   }
@@ -113,7 +114,8 @@ export default function useSavings() {
 
       return result.status;
     }
-    catch (error) {
+    catch (error: any) {
+      errorMsg.value = error.message;
       console.error(`An error has occured while fetching savings actions data: ${error}`);
     }
   }
@@ -143,6 +145,7 @@ export default function useSavings() {
       
     }
     catch (error: any) {
+      errorMsg.value = error.message;
       console.error(`An error has occured while posting savings data: ${error}`);
     }
   }
@@ -172,7 +175,8 @@ export default function useSavings() {
 
       return result.status;
     }
-    catch (error) {
+    catch (error: any) {
+      errorMsg.value = error.message;
       console.error(`An error has occured while posting savings actions data: ${error}`);
     }
   }

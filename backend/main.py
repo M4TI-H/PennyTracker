@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import sqlalchemy as sa
-from routers import users, transactions, savings, subscriptions
+from routers import users, transactions, savings, subscriptions, budgets
 from db import engine
 
 app = FastAPI()
@@ -10,6 +10,7 @@ app.include_router(users.router)
 app.include_router(transactions.router)
 app.include_router(savings.router)
 app.include_router(subscriptions.router)
+app.include_router(budgets.router)
 
 origins = [
     "http://localhost:5173",

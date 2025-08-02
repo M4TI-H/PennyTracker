@@ -18,7 +18,8 @@ export default function useTransactions() {
 
       transactionsData.value = await response.json();
     }
-    catch (error) {
+    catch (error: any) {
+      errorMsg.value = error.message;
       console.error(`An error has occured while fetching transactions data: ${error}`);
     }
   }
@@ -38,7 +39,8 @@ export default function useTransactions() {
       }
 
     }
-    catch (error) {
+    catch (error: any) {
+      errorMsg.value = error.message;
       console.error(`An error has occured while deleting a transaction: ${error}`);
     }
   }
@@ -52,7 +54,8 @@ export default function useTransactions() {
 
       transactionsData.value = await response.json();
     }
-    catch (error) {
+    catch (error: any) {
+      errorMsg.value = error.message;
       console.error(`An error has occured while fetching transactions data: ${error}`);
     }
   }
@@ -80,7 +83,8 @@ export default function useTransactions() {
       }
 
     }
-    catch (error) {
+    catch (error: any) {
+      errorMsg.value = error.message;
       console.error(`An error has occured while posting transactions data: ${error}`);
     }
   }
@@ -101,7 +105,8 @@ export default function useTransactions() {
       expenses.value = fetchedData.expenses;
       totalExpenses.value = fetchedData.total;
     }
-    catch (error) {
+    catch (error: any) {
+      errorMsg.value = error.message;
       console.error(`An error has occured while fetching categories data: ${error}`);
     }
   }
@@ -121,8 +126,9 @@ export default function useTransactions() {
       expenses.value = fetchedData.expenses;
       totalExpenses.value = fetchedData.total;
     }
-    catch (error) {
-      console.error(`An error has occured while fetching categories data: ${error}`);
+    catch (error: any) {
+      errorMsg.value = error.message;
+      console.error(`An error has occured while fetching methods data: ${error}`);
     }
   }
 

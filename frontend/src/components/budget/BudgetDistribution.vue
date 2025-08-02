@@ -1,64 +1,84 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, computed, warn } from "vue";
 import Slider from "@vueform/slider";
 import getMonthName from "@/composables/getMonthName";
 import useExpenseCategories from "@/composables/useExpenseCategories";
 import '@vueform/slider/themes/default.css'
+import useBudget from "@/composables/useBudget";
 
-const { categoriesValues, categoriesShares, monthId, monthlyBudget } = defineProps<{
+const { categoriesValues, categoriesShares, monthId } = defineProps<{
   categoriesValues: number[],
   categoriesShares: number[],
-  monthlyBudget: number,
   monthId: string,
 }>();
 
 const emit = defineEmits<{
   (e: 'update:categoriesValues', payload: number[]): void;
   (e: 'update:categoriesShares', payload: number[]): void;
-  (e: 'update:monthlyBudget', payload: number): void;
 }>();
 
 const { expenseCategories, fetchExpenseCategories } = useExpenseCategories();
+const { budgetData, fetchBudget, updateBudget } = useBudget();
 
 //expenseCategories.length
-const budget = ref<number>(monthlyBudget);
-
+const budget = ref<number>(1);
 const values = ref<number[] | null>(null);
+
+onMounted(async () => {
+  await fetchExpenseCategories(2);
+  await fetchBudget(2, monthId);
+  budget.value = budgetData.value?.amount ?? 1;
+  calculateValues();
+});
+
+watch(budget, async (newValue, oldValue) => {
+  if (newValue != oldValue) {
+    await updateBudget(newValue, 2, monthId);
+    await fetchBudget(2, monthId);
+    calculateValues();
+  }
+});
 
 const calculateValues = () => {
   const n = expenseCategories.value.length;
-  const step = Math.round(monthlyBudget / n);
+  const step = Math.round(budget.value / n);
   values.value = Array.from({ length: n - 1 }, (_, i) => Math.round((i + 1) * step));
 }
 
 const getCategoryRanges = () => {
-  if (!values.value) return [];
+  if (!values.value || budget.value === 0) return [];
 
-  const full = [0, ...values.value, monthlyBudget];
+  const full = [0, ...values.value, budget.value];
   const ranges = [];
   const shares = [];
 
   for (let i = 0; i < full.length - 1; i++) {
     ranges.push(Number((full[i+1] - full[i]).toFixed(2)));
-    shares.push(Number(((full[i+1] - full[i]) * 100 / monthlyBudget).toFixed(2)));
+    shares.push(Number(((full[i+1] - full[i]) * 100 / budget.value).toFixed(2)));
   }
 
   emit("update:categoriesValues", ranges);
   emit("update:categoriesShares", shares);
 };
 
-watch(budget, (newValue) => {
-  emit("update:monthlyBudget", newValue);
-  getCategoryRanges();
-});
+const handleInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+
+  if (target.value === "") {
+    budget.value = 1;
+  }
+  else{
+    if (Number(target.value) < 1) {
+      budget.value = 1;
+    }
+    else{
+      budget.value = Number(target.value);
+    }
+  }
+}
 
 watch(values, () => {
   getCategoryRanges();
-});
-
-onMounted(async () => {
-  await fetchExpenseCategories(2);
-  calculateValues();
 });
 
 </script>
@@ -69,7 +89,9 @@ onMounted(async () => {
     <p class="text-3xl text-[#212529] font-semibold">Budget distribution</p>
     <div class="flex items-baseline w-full gap-1">
       <label class="text-neutral-800 text-xl font-semibold">Your budget in {{ getMonthName(monthId) }}: $</label>
-      <input type="number" v-model="budget" class="w-24 h-8 focus:outline-2 rounded-xl text-neutral-800 text-xl font-semibold "/>
+      <input type="number" :value="budget" @input="handleInput" :min="1"
+        class="w-24 h-8 focus:outline-2 rounded-xl text-neutral-800 text-xl font-semibold "
+      />
     </div>
     <div class="flex flex-col gap-16 w-full">
       <p class="text-neutral-600 text-lg font-semibold">Select distribution shares:</p>

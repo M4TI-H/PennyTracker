@@ -124,3 +124,11 @@ class NewGoalAction(BaseModel):
   date: str
   goal_id: int
   user_id: int
+
+class Budget(BaseModel):
+  id: int
+  amount: float
+  user_id: int
+  month: str
+  class Config:
+    from_attributes = True

@@ -65,3 +65,11 @@ savings_action = sa.Table(
   sa.Column("goal_id", sa.Integer, index=True),
   sa.Column("user_id", sa.Integer, index=True),
 )
+
+budgets = sa.Table(
+  "budgets", metadata,
+  sa.Column("id", sa.Integer, primary_key=True, index=True),
+  sa.Column("amount", sa.Float),
+  sa.Column("user_id", sa.Integer, index=True),
+  sa.Column("month", sa.String(255)),
+)

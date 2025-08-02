@@ -2,6 +2,8 @@
 import useScreenSize from '@/composables/useScreenSize';
 
 const {screenWidth, screenHeight} = useScreenSize();
+//after login check month and check if its first login this month. 
+// If so, display budget form and ask for share distribution
 </script>
 
 <template>

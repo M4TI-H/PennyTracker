@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from "vue";
 import BudgetChartDetailed from './BudgetChartDetailed.vue';
 import getMonthName from "@/composables/getMonthName";
+import useBudget from "@/composables/useBudget";
 
 const { categoriesValues, categoriesShares, month } = defineProps<{
   categoriesValues: number[],
@@ -14,8 +15,8 @@ const emit = defineEmits<{
 }>();
 
 
-function getMonths(): { id: number; month_num: string; month_name: string, year: string }[] {
-  const result: { id: number; month_num: string; month_name: string, year: string }[] = [];
+function getMonths(): { id: number; value: string; month_name: string, year: string }[] {
+  const result: { id: number; value: string; month_name: string, year: string }[] = [];
   const now = new Date();
 
   for (let i = 0; i < 12; i++) {
@@ -23,7 +24,9 @@ function getMonths(): { id: number; month_num: string; month_name: string, year:
     const month_num = (date.getMonth() + 1).toString().padStart(2, "0");
     const month_name = getMonthName(month_num);
     const year = date.getFullYear().toString();
-    result.push({id: i, month_num, month_name, year});
+
+    const value = `${year}-${month_num}`;
+    result.push({id: i, value, month_name, year});
   }
 
   return result;
@@ -35,7 +38,8 @@ watch(monthId, (newValue) => {
 });
 
 onMounted(() => {
-  const current = (new Date().getMonth() + 1).toString().padStart(2, "0")
+  const now = new Date();
+  const current = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
   monthId.value = current;
   emit("update:month", current);
 });
@@ -49,7 +53,7 @@ onMounted(() => {
       <select v-model="monthId" class="h-10 bg-[#FFF] border-2 border-neutral-800 
         rounded-lg font-semibold text-md px-2 focus:outline-0"
       >
-        <option v-for="month in getMonths()" :key="month.id" :value="month.month_num">
+        <option v-for="month in getMonths()" :key="month.id" :value="month.value">
           {{ month.month_name }} ({{ month.year }})
         </option>
       </select>
