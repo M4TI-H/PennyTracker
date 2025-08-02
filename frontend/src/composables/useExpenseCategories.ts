@@ -18,7 +18,8 @@ export default function useExpenseCategories() {
       if (!response.ok) {
         throw new Error (`HTTP error! Status: ${response.status}`);
       }
-      return await response.json();
+
+      expenseCategories.value = await response.json();
     }
     catch (error: any) {
       errorMsg.value = error.message;

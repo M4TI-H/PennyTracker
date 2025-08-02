@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import formatDate from "@/composables/formatDate";
 import type { Category, Account } from "@/types/options";
 import type { NewTransaction } from "@/types/transactions";
 import useTransactions from "@/composables/useTransactions";
