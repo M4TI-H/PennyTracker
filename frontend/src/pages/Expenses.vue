@@ -16,9 +16,10 @@ const showAllExpenses = ref(false);
 
 const { expenseCategories, fetchExpenseCategories } = useExpenseCategories();
 const { accountsData, fetchAccounts } = useAccounts();
-const refreshData = () => {
-  fetchExpenseCategories(2);
-  fetchAccounts(2);
+
+const refreshData = async () => {
+  await fetchExpenseCategories(2);
+  await fetchAccounts(2);
 }
 
 type RecentTransactionsExpose = {
@@ -37,7 +38,7 @@ const refreshTransactions = () => {
   transactionsByCategory.value?.refreshData();
 };
 
-onMounted(refreshData);
+onMounted(async () => refreshData());
 
 </script>
 <template>

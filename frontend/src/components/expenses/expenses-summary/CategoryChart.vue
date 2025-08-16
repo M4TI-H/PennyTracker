@@ -4,7 +4,7 @@ import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, Li
 import { computed } from "vue";
 import type { ExpensesByCategoryChart } from '@/types/transactions';
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
 const { chartData } = defineProps<{
   chartData: ExpensesByCategoryChart

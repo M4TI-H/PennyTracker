@@ -3,8 +3,9 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Session
 from typing import List
 import schemas
-from models import budgets, budget_shares
+from models import budgets, budget_shares, expense_category, transactions
 from db import get_db
+from datetime import datetime
 
 router = APIRouter(prefix="/budgets", tags=["budgets"])
 
@@ -65,3 +66,28 @@ def update_shares(db: Session = Depends(get_db), newShares: List[dict] = Body(..
     db.execute(query)
     
   db.commit()
+
+@router.get("/fetch_summary/")
+def fetch_summary(db: Session = Depends(get_db), budget_id: int = Query()):
+
+  query = sa.select(
+    expense_category.c.name,
+    budget_shares.c.amount.label("total_budget"),
+    sa.func.coalesce(sa.func.sum(transactions.c.amount), 0).label("amount_spent")
+  ).join(
+    budget_shares,
+    budget_shares.c.category_id == expense_category.c.id
+  ).join(
+    budgets,
+    budgets.c.id == budget_shares.c.budget_id
+  ).outerjoin(
+    transactions,
+    transactions.c.category == expense_category.c.id
+  ).where(
+    budgets.c.id == budget_id
+  ).group_by(
+    expense_category.c.name
+  )
+
+  rows = db.execute(query).all()
+  return [dict(row._mapping) for row in rows]

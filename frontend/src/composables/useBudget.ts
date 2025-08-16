@@ -1,4 +1,4 @@
-import type { Budget, BudgetShare } from "@/types/budgets";
+import type { Budget, BudgetShare, BudgetSummary } from "@/types/budgets";
 import { ref } from "vue";
 
 export default function useBudget() {
@@ -74,14 +74,28 @@ export default function useBudget() {
     loading.value = false;
   }
 
+  const budgetSummaryData = ref<BudgetSummary[]>([]);
+  const fetchBudgetSummary = async (budget_id: number) => {
+    loading.value = true;
+
+    const url = new URL("http://localhost:8000/budgets/fetch_summary/");
+    url.searchParams.append("budget_id", budget_id.toString());
+
+    budgetSummaryData.value = await fetchData(url.toString());
+
+    loading.value = false;
+  }
+
   return {
     budgetData,
     budgetShares,
+    budgetSummaryData,
     errorMsg,
     loading,
     fetchBudget,
     updateBudget,
     fetchBudgetShares,
-    updateBudgetShares
+    updateBudgetShares,
+    fetchBudgetSummary
   }
 }

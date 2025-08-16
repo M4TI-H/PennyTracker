@@ -138,3 +138,8 @@ class Share(BaseModel):
   amount: float
   budget_id: int
   category_id: int
+
+class BudgetSummary(BaseModel):
+  name: str
+  total_budget: float
+  amount_spent: float

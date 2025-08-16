@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, computed, warn } from "vue";
+import { ref, watch, onMounted } from "vue";
 import Slider from "@vueform/slider";
 import getMonthName from "@/composables/getMonthName";
 import useExpenseCategories from "@/composables/useExpenseCategories";
 import '@vueform/slider/themes/default.css'
 import useBudget from "@/composables/useBudget";
-import type { BudgetShare } from "@/types/budgets";
 
 const { categoriesValues, categoriesShares, monthId } = defineProps<{
   categoriesValues: number[],
@@ -64,6 +63,7 @@ const calculateInitialShares = () => {
 const setInitialValues = async () => {
   await fetchExpenseCategories(2);
   await fetchBudget(2, monthId);
+  if (!budgetData.value?.id) return;
   await fetchBudgetShares(budgetData.value!.id);
   budget.value = budgetData.value?.amount ?? 1;
   calculateInitialShares();
@@ -119,6 +119,12 @@ watch(values, async (newValue) => {
   hasChanged.value = newValue.some((v, i) => v !== originalValues.value![i]);
 });
 
+watch(() => monthId, async (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    await setInitialValues();
+  }
+});
+
 onMounted(async () => {
   await setInitialValues();
 });
@@ -129,13 +135,14 @@ onMounted(async () => {
   <div class="w-[48%] h-[60%] bg-[#E9ECEF] flex flex-col p-4 gap-4
     rounded-xl shadow-xl">
     <p class="text-3xl text-[#212529] font-semibold">Budget distribution</p>
-    <div class="flex items-baseline w-full gap-1">
-      <label class="text-neutral-800 text-xl font-semibold">Your budget in {{ getMonthName(monthId) }}: $</label>
+    <p v-if="!budgetData?.id" class="text-neutral-400 font-semibold">Cannot modify past budgets.</p>
+    <div v-if="budgetData?.id" class="flex items-baseline w-full gap-1">
+      <label class="text-neutral-800 text-xl font-semibold">Your budget in {{ getMonthName(monthId.slice(-2)) }}: $</label>
       <input type="number" :value="budget" @input="handleInput" :min="1"
         class="w-24 h-8 focus:outline-2 rounded-xl text-neutral-800 text-xl font-semibold "
       />
     </div>
-    <div class="flex flex-col gap-16 w-full">
+    <div v-if="budgetData?.id" class="flex flex-col gap-16 w-full">
       <p class="text-neutral-600 text-lg font-semibold">Select distribution shares:</p>
        <Slider
         v-if="values"

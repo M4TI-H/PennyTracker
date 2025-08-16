@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import Navigation from "@/components/navigation/Navigation.vue";
 import useScreenSize from "@/composables/useScreenSize";
 import BudgetSection from "@/components/budget/BudgetSection.vue";
 import BudgetDistribution from "@/components/budget/BudgetDistribution.vue";
+import useBudget from "@/composables/useBudget";
 
 const {screenWidth, screenHeight} = useScreenSize();
 
 const categoriesValues = ref<number[]>([]);
 const categoriesShares = ref<number[]>([]);
 const monthId = ref<string>("");
+
 
 </script>
 
