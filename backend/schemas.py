@@ -132,3 +132,9 @@ class Budget(BaseModel):
   month: str
   class Config:
     from_attributes = True
+
+class Share(BaseModel):
+  id: int
+  amount: float
+  budget_id: int
+  category_id: int

@@ -1,52 +1,77 @@
-import type { Budget } from "@/types/budgets";
+import type { Budget, BudgetShare } from "@/types/budgets";
 import { ref } from "vue";
 
 export default function useBudget() {
   const budgetData = ref<Budget>();
-  const budgetShares = ref<any[]>([]);
   const errorMsg = ref<string>("");
   const loading = ref<boolean>(false);
-  
-  const fetchBudget = async (user_id: number, month_id: string) => {
+
+  async function fetchData<FetchType>(url: string, options?: any): Promise<FetchType> {
     try {
-      const url = new URL("http://localhost:8000/budgets/fetch_budget/");
-      url.searchParams.append("user_id", user_id.toString());
-      url.searchParams.append("month", month_id);
-      
-      const response = await fetch(url.toString());
+      const response = await fetch(url, options);
 
       if (!response.ok) {
         throw new Error (`HTTP error! Status: ${response.status}`);
       }
 
-      budgetData.value = await response.json();
+      return (await response.json()) as FetchType;
     }
     catch (error: any) {
       errorMsg.value = error.message;
-      console.error(`An error has occured while fetching budget data: ${error}`);
+      throw error;
     }
+  }
+  
+  const fetchBudget = async (user_id: number, month_id: string) => {
+    loading.value = true;
+
+    const url = new URL("http://localhost:8000/budgets/fetch_budget/");
+    url.searchParams.append("user_id", user_id.toString());
+    url.searchParams.append("month", month_id);
+    
+    budgetData.value = await fetchData<Budget>(url.toString());
+
+    loading.value = false;
   }
 
   const updateBudget = async (amount: number, user_id: number, month_id: string) => {
-    try {
-      const url = new URL("http://localhost:8000/budgets/update_budget");
-      url.searchParams.append("amount", amount.toString());
-      url.searchParams.append("user_id", user_id.toString());
-      url.searchParams.append("month", month_id);
-      
-      const response = await fetch(url.toString(), {
-        method: "PUT"
-      });
+    loading.value = true;
 
-      if (!response.ok) {
-        const err = await response.json()
-        throw new Error(err.detail);
-      }
-    }
-    catch (error: any) {
-      errorMsg.value = error.message;
-      console.error(`An error has occured while updating budget data: ${error}`);
-    }
+    const url = new URL("http://localhost:8000/budgets/update_budget");
+    url.searchParams.append("amount", amount.toString());
+    url.searchParams.append("user_id", user_id.toString());
+    url.searchParams.append("month", month_id);
+
+    await fetchData<Budget>(url.toString(), {
+      method: "PUT"
+    });
+
+    loading.value = false;
+  }
+
+  const budgetShares = ref<BudgetShare[]>([]);
+  const fetchBudgetShares = async (budget_id: number) => {
+    loading.value = true;
+    const url = new URL("http://localhost:8000/budgets/fetch_shares/");
+    url.searchParams.append("budget_id", budget_id.toString());
+
+    budgetShares.value = await fetchData(url.toString());
+
+    loading.value = false;
+  }
+
+  const updateBudgetShares = async (newShares: {share_id: number, amount: number}[]) => {
+    loading.value = true;
+
+    await fetchData("http://localhost:8000/budgets/update_shares/", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(newShares)
+    });
+
+    loading.value = false;
   }
 
   return {
@@ -55,6 +80,8 @@ export default function useBudget() {
     errorMsg,
     loading,
     fetchBudget,
-    updateBudget
+    updateBudget,
+    fetchBudgetShares,
+    updateBudgetShares
   }
 }

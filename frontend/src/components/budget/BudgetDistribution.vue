@@ -5,6 +5,7 @@ import getMonthName from "@/composables/getMonthName";
 import useExpenseCategories from "@/composables/useExpenseCategories";
 import '@vueform/slider/themes/default.css'
 import useBudget from "@/composables/useBudget";
+import type { BudgetShare } from "@/types/budgets";
 
 const { categoriesValues, categoriesShares, monthId } = defineProps<{
   categoriesValues: number[],
@@ -18,49 +19,14 @@ const emit = defineEmits<{
 }>();
 
 const { expenseCategories, fetchExpenseCategories } = useExpenseCategories();
-const { budgetData, fetchBudget, updateBudget } = useBudget();
+const { budgetData, budgetShares, fetchBudget, updateBudget, fetchBudgetShares, updateBudgetShares } = useBudget();
 
-//expenseCategories.length
 const budget = ref<number>(1);
 const values = ref<number[] | null>(null);
+const originalValues = ref<number[] | null>(null);
+const hasChanged = ref<boolean>(false);
 
-onMounted(async () => {
-  await fetchExpenseCategories(2);
-  await fetchBudget(2, monthId);
-  budget.value = budgetData.value?.amount ?? 1;
-  calculateValues();
-});
-
-watch(budget, async (newValue, oldValue) => {
-  if (newValue != oldValue) {
-    await updateBudget(newValue, 2, monthId);
-    await fetchBudget(2, monthId);
-    calculateValues();
-  }
-});
-
-const calculateValues = () => {
-  const n = expenseCategories.value.length;
-  const step = Math.round(budget.value / n);
-  values.value = Array.from({ length: n - 1 }, (_, i) => Math.round((i + 1) * step));
-}
-
-const getCategoryRanges = () => {
-  if (!values.value || budget.value === 0) return [];
-
-  const full = [0, ...values.value, budget.value];
-  const ranges = [];
-  const shares = [];
-
-  for (let i = 0; i < full.length - 1; i++) {
-    ranges.push(Number((full[i+1] - full[i]).toFixed(2)));
-    shares.push(Number(((full[i+1] - full[i]) * 100 / budget.value).toFixed(2)));
-  }
-
-  emit("update:categoriesValues", ranges);
-  emit("update:categoriesShares", shares);
-};
-
+// budget value input
 const handleInput = (e: Event) => {
   const target = e.target as HTMLInputElement;
 
@@ -77,8 +43,84 @@ const handleInput = (e: Event) => {
   }
 }
 
-watch(values, () => {
+// get present values for handlers on slider
+const calculateInitialShares = () => {
+  if (!budgetShares.value || budgetShares.value.length === 0) return;
+
+  const sharesAmounts = budgetShares.value.map(share => share.amount);
+
+  const sliderValues: number[] = [];
+  let temp = 0;
+  for (let i = 0; i < sharesAmounts.length - 1; i++) {
+    temp += sharesAmounts[i];
+    sliderValues.push(temp);
+  }
+
+  values.value = sliderValues;
+  originalValues.value = [...sliderValues];
+}
+
+// assign fetched data
+const setInitialValues = async () => {
+  await fetchExpenseCategories(2);
+  await fetchBudget(2, monthId);
+  await fetchBudgetShares(budgetData.value!.id);
+  budget.value = budgetData.value?.amount ?? 1;
+  calculateInitialShares();
+  hasChanged.value = false;
+}
+
+// calculate shares and ranges for categories
+const getCategoryRanges = () => {
+  if (!values.value || budget.value === 0) return [];
+
+  const full = [0, ...values.value, budget.value];
+  const ranges = [];
+  const shares = [];
+
+  for (let i = 0; i < full.length - 1; i++) {
+    ranges.push(Number((full[i+1] - full[i]).toFixed(2)));
+    shares.push(Number(((full[i+1] - full[i]) * 100 / budget.value).toFixed(2)));
+  }
+
+  emit("update:categoriesValues", ranges);
+  emit("update:categoriesShares", shares);
+};
+
+const handleSaveChanges = async () => {
+  if (!values.value || !budgetData.value) return;
+
+  const full = [0, ...values.value, budget.value];
+
+  const newShares = budgetShares.value.map((share, id) => {
+    return {
+      share_id: share.id,
+      amount: Number((full[id+1] - full[id]).toFixed(2))
+    }
+  });
+
+  await updateBudgetShares(newShares);
+  await setInitialValues();
+}
+
+// watch changes for budget, update shares
+watch(budget, async (newValue, oldValue) => {
+  if (newValue != oldValue) {
+    await updateBudget(newValue, 2, monthId);
+    await fetchBudget(2, monthId);
+    getCategoryRanges();
+  }
+});
+
+// watch changes for shares
+watch(values, async (newValue) => {
+  if(!newValue || !originalValues.value) return;
   getCategoryRanges();
+  hasChanged.value = newValue.some((v, i) => v !== originalValues.value![i]);
+});
+
+onMounted(async () => {
+  await setInitialValues();
 });
 
 </script>
@@ -106,11 +148,22 @@ watch(values, () => {
         :marks="true"
         class="w-[90%] self-center"
       />
-      <div class="w-full flex flex-wrap justify-evenly gap-8">
+      <div class="w-full flex flex-wrap justify-evenly gap-8 ">
         <p v-for="(cat, index) in expenseCategories" :key="cat.id" 
           class="text-neutral-800 text-md font-semibold">
           {{ cat.name }}: ${{ categoriesValues[index] }} - {{ categoriesShares[index] }}%
         </p>
+      </div>
+      <div v-if="hasChanged" class="w-full flex justify-around">
+        <button @click="setInitialValues"
+        class="w-24 h-8 rounded-3xl bg-none font-semibold text-sm text-neutral-800 
+        border-neutral-800 border-2 hover:cursor-pointer hover:bg-neutral-800  hover:text-[#E9ECEF]
+        transition ease-in-out duration-200">Cancel</button>
+
+        <button @click="handleSaveChanges"
+        class="w-32 h-8 rounded-3xl bg-none font-semibold text-sm text-neutral-800 
+        border-neutral-800 border-2 hover:cursor-pointer hover:bg-neutral-800  hover:text-[#E9ECEF]
+        transition ease-in-out duration-200">Save changes</button>
       </div>
     </div>
   </div>

@@ -73,3 +73,11 @@ budgets = sa.Table(
   sa.Column("user_id", sa.Integer, index=True),
   sa.Column("month", sa.String(255)),
 )
+
+budget_shares = sa.Table(
+  "budget_shares", metadata,
+  sa.Column("id", sa.Integer, primary_key=True, index=True),
+  sa.Column("amount", sa.Float),
+  sa.Column("budget_id", sa.Integer, index=True),
+  sa.Column("category_id", sa.Integer, index=True),
+)
