@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Pie } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from 'chart.js'
-import { computed, onMounted } from 'vue';
+import { computed } from 'vue';
 import type { BudgetSummary } from '@/types/budgets';
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement);

@@ -13,8 +13,9 @@ const { categoriesValues, categoriesShares, monthId } = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:categoriesValues', payload: number[]): void;
-  (e: 'update:categoriesShares', payload: number[]): void;
+  (e: 'update:categoriesValues', payload: number[]): void,
+  (e: 'update:categoriesShares', payload: number[]): void,
+  (e: "refresh"): void
 }>();
 
 const { expenseCategories, fetchExpenseCategories } = useExpenseCategories();
@@ -24,6 +25,7 @@ const budget = ref<number>(1);
 const values = ref<number[] | null>(null);
 const originalValues = ref<number[] | null>(null);
 const hasChanged = ref<boolean>(false);
+const currentMonth = ref<string>("");
 
 // budget value input
 const handleInput = (e: Event) => {
@@ -101,6 +103,7 @@ const handleSaveChanges = async () => {
 
   await updateBudgetShares(newShares);
   await setInitialValues();
+  emit("refresh");
 }
 
 // watch changes for budget, update shares
@@ -109,6 +112,7 @@ watch(budget, async (newValue, oldValue) => {
     await updateBudget(newValue, 2, monthId);
     await fetchBudget(2, monthId);
     getCategoryRanges();
+    emit("refresh");
   }
 });
 
@@ -117,6 +121,7 @@ watch(values, async (newValue) => {
   if(!newValue || !originalValues.value) return;
   getCategoryRanges();
   hasChanged.value = newValue.some((v, i) => v !== originalValues.value![i]);
+  emit("refresh");
 });
 
 watch(() => monthId, async (newValue, oldValue) => {
@@ -127,6 +132,9 @@ watch(() => monthId, async (newValue, oldValue) => {
 
 onMounted(async () => {
   await setInitialValues();
+  const now = new Date();
+  const current = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
+  currentMonth.value = current;
 });
 
 </script>
@@ -135,14 +143,14 @@ onMounted(async () => {
   <div class="w-[48%] h-[60%] bg-[#E9ECEF] flex flex-col p-4 gap-4
     rounded-xl shadow-xl">
     <p class="text-3xl text-[#212529] font-semibold">Budget distribution</p>
-    <p v-if="!budgetData?.id" class="text-neutral-400 font-semibold">Cannot modify past budgets.</p>
-    <div v-if="budgetData?.id" class="flex items-baseline w-full gap-1">
+    <p v-if="!budgetData?.id || monthId < currentMonth" class="text-neutral-400 font-semibold">Cannot modify past budgets.</p>
+    <div v-if="budgetData?.id && monthId === currentMonth" class="flex items-baseline w-full gap-1">
       <label class="text-neutral-800 text-xl font-semibold">Your budget in {{ getMonthName(monthId.slice(-2)) }}: $</label>
       <input type="number" :value="budget" @input="handleInput" :min="1"
         class="w-24 h-8 focus:outline-2 rounded-xl text-neutral-800 text-xl font-semibold "
       />
     </div>
-    <div v-if="budgetData?.id" class="flex flex-col gap-16 w-full">
+    <div v-if="budgetData?.id && monthId === currentMonth" class="flex flex-col gap-16 w-full">
       <p class="text-neutral-600 text-lg font-semibold">Select distribution shares:</p>
        <Slider
         v-if="values"

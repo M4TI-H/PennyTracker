@@ -12,7 +12,9 @@ const budgetUsage = ((category: BudgetSummary) => {
 </script>
 
 <template>
-  <div class="w-full h-96">
-    <p v-for="category in budgetSummaryData">{{ category.name }} - ${{ category.amount_spent }} / ${{ category.total_budget }} - {{ budgetUsage(category) }}%</p> 
+  <div class="w-full h-24 flex flex-wrap justify-center items-center gap-8">
+    <p v-for="category in budgetSummaryData" class="font-semibold">
+      {{ category.name }} - ${{ category.amount_spent }} / ${{ category.total_budget }} - {{ budgetUsage(category) }}%
+    </p> 
   </div>
 </template>

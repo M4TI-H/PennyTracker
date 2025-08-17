@@ -5,14 +5,13 @@ import getMonthName from "@/composables/getMonthName";
 import BudgetUsage from "./BudgetUsage.vue";
 import useBudget from "@/composables/useBudget";
 
-const { categoriesValues, categoriesShares, month } = defineProps<{
-  categoriesValues: number[],
-  categoriesShares: number[],
-  month: string
+const { refreshData } = defineProps<{
+  refreshData: boolean
 }>();
 
 const emit = defineEmits<{
-  (e: "update:month", payload: string): void;
+  (e: "update:month", payload: string): void,
+  (e: "resetRefresh"): void
 }>();
 
 const { budgetData, budgetSummaryData, fetchBudget, fetchBudgetSummary } = useBudget();
@@ -34,10 +33,31 @@ function getMonths(): { id: number; value: string; month_name: string, year: str
   return result;
 }
 
-const monthId = ref<string>(month);
+const monthId = ref<string>("");
 
-watch(monthId, (newValue) => {
+watch(monthId, async (newValue, oldValue) => {
+  if (newValue === oldValue) return;
+
   emit("update:month", newValue);
+
+  fetchBudget(2, newValue);
+
+
+  await nextTick();
+  if (budgetData.value?.id) {
+    await fetchBudgetSummary(budgetData.value.id);
+  } else {
+    budgetSummaryData.value = [];
+  }
+});
+
+watch(() => refreshData, async (newValue) => {
+  if (newValue) {
+    if (!budgetData.value?.id) return;
+    await fetchBudgetSummary(budgetData.value.id);
+
+    emit("resetRefresh");
+  }
 });
 
 onMounted(async () => {
@@ -65,9 +85,10 @@ onMounted(async () => {
         </option>
       </select>
     </span>
-    <div class="w-[60%]">
+    <div v-if="budgetData?.id" class="w-[60%]">
       <BudgetChartDetailed :budgetSummaryData="budgetSummaryData"/>
     </div>
-    <BudgetUsage :budgetSummaryData="budgetSummaryData"/>
+    <BudgetUsage v-if="budgetData?.id" :budgetSummaryData="budgetSummaryData"/>
+    <p v-if="!budgetData?.id" class="text-neutral-400 font-semibold">No data</p>
   </div>
 </template>
