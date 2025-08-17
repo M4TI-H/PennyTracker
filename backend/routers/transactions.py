@@ -365,5 +365,21 @@ def get_transactions_count(db: Session = Depends(get_db), user_id: int = Query()
 
   result = db.execute(query)
   rows = result.all()
-  print(rows)
   return [dict(row._mapping) for row in rows]
+
+@router.get("/transactions_months/")
+def get_transactions_months(db: Session = Depends(get_db), user_id: int = Query()):
+  query = sa.select(
+    transactions.c.date
+  ).where(
+    transactions.c.user_id == user_id
+  )
+
+  result = db.execute(query).scalars().all()
+
+  months = set()
+  for d in result:
+    day, month, year = d.split("/")
+    months.add(f"{month}/{year}")
+  
+  return sorted(list(months), reverse=True)

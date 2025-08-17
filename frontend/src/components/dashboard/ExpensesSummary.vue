@@ -2,7 +2,7 @@
 import { onMounted, ref, watch } from "vue";
 import type { TransactionsChart } from "@/types/transactions";
 import MonthlyExpensesChart from "./MonthlyExpensesChart.vue";
-import useMonthlyTransactions from "@/composables/useMonthlyTransactions"
+import useTransactions from "@/composables/useTransactions";
 
 const chartData = ref<TransactionsChart>({
   month: [],
@@ -10,7 +10,7 @@ const chartData = ref<TransactionsChart>({
   number_of_transactions: []
 });
 
-const { monthlyTransactionsData, fetchMonthlyTransactions } = useMonthlyTransactions();
+const { monthlyTransactionsData, fetchMonthlyTransactions } = useTransactions();
 const refreshData = () => {
   fetchMonthlyTransactions(2);
 }

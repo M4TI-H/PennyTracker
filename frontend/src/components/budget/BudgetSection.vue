@@ -4,6 +4,7 @@ import BudgetChartDetailed from './BudgetChartDetailed.vue';
 import getMonthName from "@/composables/getMonthName";
 import BudgetUsage from "./BudgetUsage.vue";
 import useBudget from "@/composables/useBudget";
+import useTransactions from "@/composables/useTransactions";
 
 const { refreshData } = defineProps<{
   refreshData: boolean
@@ -14,20 +15,19 @@ const emit = defineEmits<{
   (e: "resetRefresh"): void
 }>();
 
+const { months, fetchTransactionMonths } = useTransactions();
 const { budgetData, budgetSummaryData, fetchBudget, fetchBudgetSummary } = useBudget();
 
-function getMonths(): { id: number; value: string; month_name: string, year: string }[] {
-  const result: { id: number; value: string; month_name: string, year: string }[] = [];
-  const now = new Date();
+function getMonths() {
+  if (!months.value.length) return [];
 
-  for (let i = 0; i < 12; i++) {
-    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const month_num = (date.getMonth() + 1).toString().padStart(2, "0");
+  const result: { month_num: string; month_name: string, year: string }[] = [];
+
+  for (let month of months.value) {
+    const month_num = month.slice(0, 2);
     const month_name = getMonthName(month_num);
-    const year = date.getFullYear().toString();
-
-    const value = `${year}-${month_num}`;
-    result.push({id: i, value, month_name, year});
+    const year = month.slice(3, 7);
+    result.push({month_num, month_name, year});
   }
 
   return result;
@@ -41,7 +41,6 @@ watch(monthId, async (newValue, oldValue) => {
   emit("update:month", newValue);
 
   fetchBudget(2, newValue);
-
 
   await nextTick();
   if (budgetData.value?.id) {
@@ -61,9 +60,11 @@ watch(() => refreshData, async (newValue) => {
 });
 
 onMounted(async () => {
-  const now = new Date();
-  const current = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
+  await fetchTransactionMonths(2);
+  const monthsList = getMonths();
+  const current = `${monthsList[0].year}-${monthsList[0].month_num}`;
   monthId.value = current;
+
   emit("update:month", current);
 
   await fetchBudget(2, current);
@@ -80,7 +81,7 @@ onMounted(async () => {
       <select v-model="monthId" class="h-10 bg-[#FFF] border-2 border-neutral-800 
         rounded-lg font-semibold text-md px-2 focus:outline-0"
       >
-        <option v-for="month in getMonths()" :key="month.id" :value="month.value">
+        <option v-for="(month, id) in getMonths()" :key="id" :value="`${month.year}-${month.month_num}`">
           {{ month.month_name }} ({{ month.year }})
         </option>
       </select>

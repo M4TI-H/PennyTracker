@@ -10,18 +10,16 @@ import useTransactions from '@/composables/useTransactions';
 const selectedFilter = ref<string>("category");
 const monthId = ref<string>("");
 
-const { expenses, totalExpenses, fetchExpensesByCategory, fetchExpensesByMethod } = useTransactions();
+const { expenses, totalExpenses, fetchExpensesByCategory, fetchExpensesByMethod, months, fetchTransactionMonths } = useTransactions();
 
-function getMonths(): { id: number; month_num: string; month_name: string, year: string }[] {
-  const result: { id: number; month_num: string; month_name: string, year: string }[] = [];
-  const now = new Date();
+function getMonths(): { month_num: string; month_name: string, year: string }[] {
+  const result: { month_num: string; month_name: string, year: string }[] = [];
 
-  for (let i = 0; i < 12; i++) {
-    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const month_num = (date.getMonth() + 1).toString().padStart(2, "0");
+  for (let month of months.value) {
+    const month_num = month.slice(0, 2);
     const month_name = getMonthName(month_num);
-    const year = date.getFullYear().toString();
-    result.push({id: i, month_num, month_name, year});
+    const year = month.slice(3, 7);
+    result.push({month_num, month_name, year});
   }
 
   return result;
@@ -69,6 +67,7 @@ defineExpose({
 onMounted(async () => {
   monthId.value = (new Date().getMonth() + 1).toString().padStart(2, "0");
   refreshData();
+  await fetchTransactionMonths(2);
 });
 
 </script>
@@ -81,7 +80,7 @@ onMounted(async () => {
         <select v-model="monthId"
           class="w-35 h-10 bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
         >
-          <option v-for="month in getMonths()" :key="month.id" :value="month.month_num">
+          <option v-for="(month, id) in getMonths()" :key="id" :value="month.month_num">
             {{ month.month_name }} ({{ month.year }})
           </option>
         </select>

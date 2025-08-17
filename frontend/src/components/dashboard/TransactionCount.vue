@@ -2,9 +2,10 @@
 import { onMounted, ref, watch } from "vue";
 import type { TransactionCountType, MonthInfo } from "@/types/transactions";
 import getMonthName from "@/composables/getMonthName";
-import { fetchTransactionsCount } from "@/composables/useTransactionsCount";
+import useTransactions from "@/composables/useTransactions";
 
-const transactionsCountData = ref(<TransactionCountType[]>[]);
+const { transactionCount, fetchTransactionsCount } = useTransactions();
+
 const showDetailsOfDay = ref<string | null>(null);
 let monthData = ref<MonthInfo[]>([]);
 
@@ -32,7 +33,7 @@ function formatDate(day: number | string, month: string, year: number | string) 
 
 const transactionMap = ref<Record<string, { num: number; level: number }>>({});
 
-watch(() => transactionsCountData.value, (newData) => {
+watch(() => transactionCount.value, (newData) => {
   transactionMap.value = newData.reduce((map, t: TransactionCountType) => {
     const [day, month, year] = t.date.split('/');
     const date = formatDate(day, month, year);
@@ -71,8 +72,8 @@ function calculateTransactionLevel(num: number): number {
 }
 
 onMounted(async() => {
-  transactionsCountData.value = await fetchTransactionsCount(2);
-  transactionsCountData.value = transactionsCountData.value.map(t => ({
+  await fetchTransactionsCount(2);
+  transactionCount.value = transactionCount.value.map(t => ({
     ...t,
     level: calculateTransactionLevel(t.number_of_transactions)
   }));

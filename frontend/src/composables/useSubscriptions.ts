@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import type { Subscription, NewSubscription } from "@/types/transactions";
 import formatDate from "./formatDate";
+import { fetchData } from "./useFetchData";
 
 export default function useSubscriptions() {
   const subscriptionsData = ref<Subscription[]>([]);
@@ -9,72 +10,48 @@ export default function useSubscriptions() {
 
   const fetchSubscriptions = async(user_id: number) => {
     loading.value = true;
-    try {
-      const response = await fetch("http://localhost:8000/subscriptions/fetch_all");
-      
-      if (!response.ok) {
-        throw new Error (`HTTP error! Status: ${response.status}`);
-      }
 
-      subscriptionsData.value = await response.json();
-    }
-    catch (error: any) {
-      errorMsg.value = error.message;
-      console.error(`An error has occured while fetching transactions data: ${error}`);
-    }
+    const { data, error } = await fetchData<Subscription[]>("http://localhost:8000/subscriptions/fetch_all");
+    if (error) errorMsg.value = error;      
+    else subscriptionsData.value = data ?? [];
+
     loading.value = false;
   }
 
   const postNewSubscription = async(newSubData: NewSubscription, user_id: number) => {
     loading.value = true;
-    try {
-      const response = await fetch("http://localhost:8000/subscriptions/new_subscription/", {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          service: newSubData.service, 
-          amount: newSubData.amount, 
-          start_date: formatDate(new Date(newSubData.start_date)).slice(0, 10),
-          frequency: newSubData.frequency,
-          user_id: user_id
-        })
-      });
 
-      if (!response.ok) {
-        throw new Error (`HTTP error! Status: ${response.status}`);
-      }
-     
-    }
-    catch (error: any) {
-      errorMsg.value = error.message;
-      console.error(`An error has occured while posting subscriptions data: ${error}`);
-    }
+      const { error } = await fetchData<NewSubscription>("http://localhost:8000/subscriptions/new_subscription/", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        service: newSubData.service, 
+        amount: newSubData.amount, 
+        start_date: formatDate(new Date(newSubData.start_date)).slice(0, 10),
+        frequency: newSubData.frequency,
+        user_id: user_id
+      })
+    });
+    
+    if (error) errorMsg.value = error;      
 
     loading.value = false;
   }
 
   const deleteSubscription = async(user_id: number, subscription: number) => {
     loading.value = true;
-    try {
-      const url = new URL("http://localhost:8000/subscriptions/delete_one");
-      url.searchParams.append("user_id", user_id.toString());
-      url.searchParams.append("subscription_id", subscription.toString());
 
-      const response = await fetch(url.toString(), {
-        method: "DELETE"
-      });
+    const url = new URL("http://localhost:8000/subscriptions/delete_one");
+    url.searchParams.append("user_id", user_id.toString());
+    url.searchParams.append("subscription_id", subscription.toString());
 
-      if (!response.ok) {
-        throw new Error (`HTTP error! Status: ${response.status}`);
-      }
+     const { error } = await fetchData<Subscription>(url.toString(), {
+      method: "DELETE"
+    });
 
-    }
-    catch (error: any) {
-      errorMsg.value = error.message;
-      console.error(`An error has occured while deleting a subscription: ${error}`);
-    }
+    if (error) errorMsg.value = error;    
 
     loading.value = false;
   }

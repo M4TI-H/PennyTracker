@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import type { Category } from "@/types/options";
+import { fetchData } from "./useFetchData";
 
 export default function useExpenseCategories() {
   const expenseCategories = ref<Category[]>([]);
@@ -9,22 +10,13 @@ export default function useExpenseCategories() {
   const fetchExpenseCategories = async(user: number) => {
     loading.value = true;
 
-    try {
-      const url = new URL("http://localhost:8000/transactions/expense_categories");
-      url.searchParams.append("user_id", user.toString());
+    const url = new URL("http://localhost:8000/transactions/expense_categories");
+    url.searchParams.append("user_id", user.toString());
 
-      const response = await fetch(url.toString());
+    const { data, error } = await fetchData<Category[]>(url.toString());
+    if (error) errorMsg.value = error;
+    else expenseCategories.value = data ?? [];
 
-      if (!response.ok) {
-        throw new Error (`HTTP error! Status: ${response.status}`);
-      }
-
-      expenseCategories.value = await response.json();
-    }
-    catch (error: any) {
-      errorMsg.value = error.message;
-      console.error(`An error has occured while fetching categories data: ${error}`);
-    }
     loading.value = false;
   }
 
