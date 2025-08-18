@@ -44,17 +44,20 @@ class TransactionsCount(BaseModel):
 class ExpenseCategory(BaseModel):
   id: int
   name: str
+  isActive: int
   user_id: int
   class Config:
     from_attributes = True
 
 class NewExpenseCategory(BaseModel):
   name: str
+  isActive: int
   user_id: int
 
 class Account(BaseModel):
   id: int
   name: str
+  isActive: int
   user_id: int
   expenses: float
   class Config:
@@ -62,6 +65,7 @@ class Account(BaseModel):
 
 class NewAccount(BaseModel):
   name: str
+  isActive: int
   user_id: int
   
 class Subscription(BaseModel):
@@ -133,13 +137,22 @@ class Budget(BaseModel):
   class Config:
     from_attributes = True
 
+class NewBudget(BaseModel):
+  amount: float
+  month: str
+  user_id: int
+
 class Share(BaseModel):
   id: int
   amount: float
   budget_id: int
   category_id: int
+  class Config:
+    from_attributes = True
 
 class BudgetSummary(BaseModel):
   name: str
   total_budget: float
   amount_spent: float
+  class Config:
+    from_attributes = True

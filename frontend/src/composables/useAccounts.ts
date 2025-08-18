@@ -43,11 +43,58 @@ export default function useAccounts () {
       },
       body: JSON.stringify({
         name: name,
+        isActive: 1,
         user_id: user_id
       })
     });
 
     if (error) errorMsg.value = error;
+
+    loading.value = false;
+  }
+
+  const deleteAccount = async (account_id: number, user_id: number) => {
+    loading.value = true;
+
+    const url = new URL("http://localhost:8000/transactions/delete_account/");
+    url.searchParams.append("account_id", account_id.toString());
+    url.searchParams.append("user_id", user_id.toString());
+
+    const { error } = await fetchData<Account[]>(url.toString(), {
+      method: "DELETE"
+    });
+
+    if (error) errorMsg.value = error;
+    
+    loading.value = false;
+  }
+
+  const changeActivity = async (account_id: number, user_id: number, activity: number) => {
+    loading.value = true;
+
+    const url = new URL("http://localhost:8000/transactions/change_account_activity/");
+    url.searchParams.append("account_id", account_id.toString());
+    url.searchParams.append("user_id", user_id.toString());
+    url.searchParams.append("activity", activity.toString());
+
+    const { error } = await fetchData<Account[]>(url.toString(), {
+      method: "PUT"
+    });
+
+    if (error) errorMsg.value = error;
+    
+    loading.value = false;
+  }
+
+  const fetchActiveAccounts = async (user: number) => {
+    loading.value = true;
+
+    const url = new URL("http://localhost:8000/transactions/fetch_active_accounts");
+    url.searchParams.append("user_id", user.toString());
+    
+    const { data, error } = await fetchData<Account[]>(url.toString());
+    if (error) errorMsg.value = error;
+    else accountsData.value = data ?? [];
 
     loading.value = false;
   }
@@ -58,6 +105,9 @@ export default function useAccounts () {
     loading,
     fetchAccounts,
     fetchTopAccounts,
-    postNewAccount
+    postNewAccount,
+    deleteAccount,
+    changeActivity,
+    fetchActiveAccounts
   }
 }

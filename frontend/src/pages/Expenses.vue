@@ -14,12 +14,12 @@ const {screenWidth, screenHeight} = useScreenSize();
 
 const showAllExpenses = ref(false);
 
-const { expenseCategories, fetchExpenseCategories } = useExpenseCategories();
-const { accountsData, fetchAccounts } = useAccounts();
+const { expenseCategories, fetchActiveCategories } = useExpenseCategories();
+const { accountsData, fetchActiveAccounts } = useAccounts();
 
 const refreshData = async () => {
-  await fetchExpenseCategories(2);
-  await fetchAccounts(2);
+  await fetchActiveCategories(2);
+  await fetchActiveAccounts(2);
 }
 
 type RecentTransactionsExpose = {

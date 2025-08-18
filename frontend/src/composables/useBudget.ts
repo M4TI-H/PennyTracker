@@ -82,16 +82,72 @@ export default function useBudget() {
     loading.value = false;
   }
 
+  const currentBudgetExists = ref<boolean>(false);
+  const checkExistenceOfBudget = async (user_id: number, month_id: string) => {
+    loading.value = true;
+
+    const url = new URL("http://localhost:8000/budgets/check_existence/");
+    url.searchParams.append("user_id", user_id.toString());
+    url.searchParams.append("month_id", month_id.toString());
+
+    const { data, error } = await fetchData<boolean>(url.toString());
+    
+    if (error) errorMsg.value = error;
+    else currentBudgetExists.value = data ?? false;
+
+    loading.value = false;
+  }
+
+  const createNewBudget = async(user_id: number, month_id: string) => {
+    loading.value = true;
+
+    const { data, error } = await fetchData("http://localhost:8000/budgets/create_budget/", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: user_id,
+        month: month_id,
+        amount: 1000
+      })
+    });
+    
+    if (error) errorMsg.value = error;
+
+    loading.value = false;
+  }
+
+  const budgetMonths = ref<string[]>([]);
+  //fetch names of months with transactions
+  const fetchBudgetMonths = async (user_id: number) => {
+    loading.value = true;
+
+    const url = new URL("http://localhost:8000/budgets/budget_months/");
+    url.searchParams.append("user_id", user_id.toString());
+
+    const { data, error} = await fetchData<string[]>(url.toString());
+    if (error) errorMsg.value = error;
+    else budgetMonths.value = data ?? [];
+
+    loading.value = false;
+  }
+
   return {
     budgetData,
     budgetShares,
     budgetSummaryData,
+    currentBudgetExists,
+    budgetMonths,
     errorMsg,
     loading,
     fetchBudget,
     updateBudget,
     fetchBudgetShares,
     updateBudgetShares,
-    fetchBudgetSummary
+    fetchBudgetSummary,
+    checkExistenceOfBudget,
+    createNewBudget,
+    fetchBudgetMonths
   }
 }

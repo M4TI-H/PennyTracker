@@ -18,7 +18,7 @@ const emit = defineEmits<{
   (e: "refresh"): void
 }>();
 
-const { expenseCategories, fetchExpenseCategories } = useExpenseCategories();
+const { expenseCategories, fetchActiveCategories } = useExpenseCategories();
 const { budgetData, budgetShares, fetchBudget, updateBudget, fetchBudgetShares, updateBudgetShares } = useBudget();
 
 const budget = ref<number>(1);
@@ -63,7 +63,7 @@ const calculateInitialShares = () => {
 
 // assign fetched data
 const setInitialValues = async () => {
-  await fetchExpenseCategories(2);
+  await fetchActiveCategories(2);
   await fetchBudget(2, monthId);
   if (!budgetData.value?.id) return;
   await fetchBudgetShares(budgetData.value!.id);

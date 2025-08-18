@@ -2,14 +2,13 @@
 import { onMounted, ref, watchEffect } from "vue";
 import AccountView from "./AccountView.vue";
 import useAccounts from "@/composables/useAccounts";
-import type { Account } from "@/types/options";
 const displayNewAccount = ref(false);
 const displayDeleteAccount = ref(false);
 
 const { accountsData, fetchAccounts, postNewAccount } = useAccounts();
 
-const refreshAccounts = () => {
-  fetchAccounts(2);
+const refreshAccounts = async () => {
+  await fetchAccounts(2);
 }
 
 const newAccountName = ref<string>("");
@@ -32,7 +31,7 @@ const switchDisplayNewAccount = () => {
 
 <template>
   <div class="w-[60%] h-[40%] flex flex-wrap gap-4">
-    <AccountView v-for="account in accountsData" :key="account.id" :account="account" @delete="refreshAccounts()"/>
+    <AccountView v-for="account in accountsData" :key="account.id" :account="account" @refresh="refreshAccounts()"/>
 
     <div @click="switchDisplayNewAccount"
       class="w-64 h-32 flex flex-col p-4

@@ -1,30 +1,29 @@
 <script setup lang="ts">
+import useAccounts from '@/composables/useAccounts';
 import type { Account } from '@/types/options';
+
 const { account } = defineProps<{
   account: Account
 }>();
 
-const emit = defineEmits(["delete"]);
+const emit = defineEmits<{
+ (e: "refresh"): void
+}>();
 
-const deleteAccount = async (account_id: number, user_id: number) => {
-  try {
-    const url = new URL("http://localhost:8000/transactions/delete_account/");
-    url.searchParams.append("account_id", account_id.toString());
-    url.searchParams.append("user_id", user_id.toString());
+const { deleteAccount, changeActivity } = useAccounts();
 
-    const response = await fetch(url.toString(), {
-      method: "DELETE"
-    });
+const handleDelete = async () => {
+  await deleteAccount(account.id, 2);
+  emit("refresh");
+}
 
-    if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
-    }
-
-    emit("delete");
-  }
-  catch (error) {
-     console.error(`An error has occured while deleting an account: ${error}`);
-  }
+const handleActivity = async () => {
+  let activity = -1;
+  if (account.isActive === 1) activity = 0;
+  else activity = 1;
+  
+  await changeActivity(account.id, 2, activity);
+  emit("refresh");
 }
 
 </script>
@@ -34,11 +33,15 @@ const deleteAccount = async (account_id: number, user_id: number) => {
     rounded-xl shadow-xl bg-[#E9ECEF]"
   >
     <span class="w-full flex justify-between items-center">
-      <p class="text-md sm:text-xl text-[#212529] font-semibold">{{ account.name }}</p>
-      <div>
-        <button @click="deleteAccount(account.id, 2)"
+      <p v-if="account.isActive === 1" class="text-md sm:text-xl text-[#212529] font-semibold">{{ account.name }}</p>
+      <p v-else class="text-md sm:text-xl text-[#212529] font-semibold line-through">{{ account.name }}</p>
+      <div class="flex gap-4">
+        <button @click="handleDelete"
           class="text-xl hover:scale-110 hover:cursor-pointer transition ease-in-out duration-200"
         ><i class="pi pi-trash"></i></button>
+        <button @click="handleActivity"
+          class="text-xl hover:scale-110 hover:cursor-pointer transition ease-in-out duration-200"
+        ><i v-if="account.isActive === 0" class="pi pi-eye"></i><i v-else class="pi pi-eye-slash"></i></button>
       </div>
     </span>
     <p class="text-xs text-neutral-400 mt-4">Spent this month</p>

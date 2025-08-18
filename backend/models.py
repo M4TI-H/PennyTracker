@@ -24,6 +24,7 @@ expense_category = sa.Table(
   "expense_category", metadata,
   sa.Column("id", sa.Integer, primary_key=True, index=True),
   sa.Column("name", sa.String(255)),
+  sa.Column("isActive", sa.Integer),
   sa.Column("user_id", sa.Integer, index=True),
 )
 
@@ -31,6 +32,7 @@ accounts = sa.Table(
   "accounts", metadata,
   sa.Column("id", sa.Integer, primary_key=True, index=True),
   sa.Column("name", sa.String(255)),
+  sa.Column("isActive", sa.Integer),
   sa.Column("user_id", sa.Integer, index=True)
 )
 

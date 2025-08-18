@@ -1,65 +1,13 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
-import fetchExpenseCategories from "@/composables/useExpenseCategories";
-import type { Category } from "@/types/options";
+import { onMounted, ref } from "vue";
+import useExpenseCategories from "@/composables/useExpenseCategories";
 
 const displayNewCategory = ref<boolean>(false);
 const displayDeleteCategory = ref<boolean>(false);
 const newCategory = ref<string>("");
 const categoryToDelete = ref<number>(0);
-const expenseCategories = ref<Category[]>([]);
 
-const postNewCategory = async (user_id: number) => {
-  try {
-    const response = await fetch("http://localhost:8000/transactions/new_category/", {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: newCategory.value,
-        user_id: user_id
-      })
-    });
-
-    if (!response.ok) {
-      const err = await response.json()
-      throw new Error(err.detail); 
-    }
-
-    fetchExpenseCategories(2);
-    switchDisplayNewCategory();
-  }
-  catch (error) {
-    console.error(`An error has occured while posting new category: ${error}`);
-  }
-}
-
-const deleteCategory = async (user_id: number) => {
-  try {
-    const url = new URL("http://localhost:8000/transactions/delete_category/");
-    url.searchParams.append("category_id", categoryToDelete.value.toString());
-    url.searchParams.append("user_id", user_id.toString());
-
-    const response = await fetch(url.toString(), {
-      method: "DELETE"
-    });
-
-    if (!response.ok) {
-      throw new Error (`HTTP error! Status: ${response.status}`);
-    }
-
-    fetchExpenseCategories(2);
-    switchDisplayDeleteCategory();
-  }
-  catch (error) {
-     console.error(`An error has occured while deleting a category: ${error}`);
-  }
-}
-
-watchEffect(async() => {
-  expenseCategories.value = await fetchExpenseCategories(2);
-});
+const { expenseCategories, fetchExpenseCategories, postNewCategory, deleteCategory } = useExpenseCategories();
 
 const switchDisplayNewCategory = () => {
   displayNewCategory.value = !displayNewCategory.value;
@@ -70,6 +18,23 @@ const switchDisplayDeleteCategory = () => {
   displayDeleteCategory.value = !displayDeleteCategory.value;
   displayNewCategory.value = false;
 }
+
+const handleNewCategory = async () => {
+  await postNewCategory(2, newCategory.value);
+  await fetchExpenseCategories(2);
+  switchDisplayNewCategory();
+}
+
+const handleDeleteCategory = async () => {
+  await deleteCategory(2, categoryToDelete.value);
+  await fetchExpenseCategories(2);
+  switchDisplayDeleteCategory();
+}
+
+onMounted(async () => {
+  await fetchExpenseCategories(2);
+});
+
 </script>
 
 <template>
@@ -85,7 +50,7 @@ const switchDisplayDeleteCategory = () => {
         <input type="text" v-model="newCategory" placeholder="Category name"
           class="w-[50%] h-full bg-[#FFF] border-2 border-neutral-800 rounded-lg font-semibold text-md px-2 focus:outline-0"
         />
-        <button @click="postNewCategory(2)"
+        <button @click="handleNewCategory"
           class="w-[20%] h-full rounded-3xl bg-neutral-800 text-sm text-[#E9ECEF]
           border-neutral-800 border-2 hover:cursor-pointer transition ease-in-out duration-200"
         >Confirm</button>
@@ -94,6 +59,7 @@ const switchDisplayDeleteCategory = () => {
         >Cancel</button>
       </span>
     </span>
+
     <!--Category to delete-->
     <span class="w-full h-10 mt-4 flex justify-center">
       <button @click="switchDisplayDeleteCategory" class="w-40 h-full rounded-3xl bg-neutral-800 text-sm text-[#E9ECEF]
@@ -106,7 +72,7 @@ const switchDisplayDeleteCategory = () => {
         >
           <option v-for="category in expenseCategories" :key="category.id" :value="category.id">{{ category.name }}</option>
         </select>
-        <button @click="deleteCategory(2)"
+        <button @click="handleDeleteCategory"
           class="w-[20%] h-full rounded-3xl bg-neutral-800 text-sm text-[#E9ECEF]
           border-neutral-800 border-2 hover:cursor-pointer transition ease-in-out duration-200"
         >Confirm</button>

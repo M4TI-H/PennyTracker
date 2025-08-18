@@ -304,7 +304,7 @@ def add_new_account(account_data: schemas.NewAccount, db: Session = Depends(get_
   db.execute(query)
   db.commit()
 
-#delete account with all its transactions
+#delete account with all its transactions - HARD DELETE
 @router.delete("/delete_account/")
 def delete_account(db: Session = Depends(get_db), user_id: int = Query(), account_id: int = Query()):
   query1 = sa.delete(
@@ -383,3 +383,50 @@ def get_transactions_months(db: Session = Depends(get_db), user_id: int = Query(
     months.add(f"{month}/{year}")
   
   return sorted(list(months), reverse=True)
+
+@router.put("/change_account_activity/")
+def change_acount_activity(db: Session = Depends(get_db), account_id: int = Query(), user_id: int = Query(), activity: int = Query()):
+  
+  query = sa.update(
+    accounts
+  ).where(
+    accounts.c.user_id == user_id,
+    accounts.c.id == account_id
+  ).values(
+    isActive = activity,
+  )
+
+  db.execute(query)
+  db.commit()
+
+#fetch only active accounts
+@router.get("/fetch_active_accounts/", response_model=List[schemas.Account])
+def fetch_active_accounts(db: Session = Depends(get_db), user_id: int = Query()):
+  query = sa.select(
+    accounts,
+    sa.func.coalesce(sa.func.sum(transactions.c.amount), 0).label("expenses"),
+  ).outerjoin(
+    transactions,
+    transactions.c.method == accounts.c.id
+  ).where(
+    accounts.c.user_id == user_id,
+    accounts.c.isActive == 1
+  ).group_by(
+    accounts.c.id,
+  )
+
+  rows = db.execute(query).all()
+  return [dict(row._mapping) for row in rows]
+
+#fetch only active categories
+@router.get("/fetch_active_categories/", response_model=List[schemas.ExpenseCategory])
+def fetch_active_categories(db: Session = Depends(get_db), user_id: int = Query()):
+  query = sa.select(
+    expense_category,
+  ).where(
+    expense_category.c.user_id == user_id,
+    expense_category.c.isActive == 1
+  )
+
+  rows = db.execute(query).all()
+  return [dict(row._mapping) for row in rows]
