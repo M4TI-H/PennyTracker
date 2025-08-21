@@ -4,7 +4,6 @@ import BudgetChartDetailed from './BudgetChartDetailed.vue';
 import getMonthName from "@/composables/getMonthName";
 import BudgetUsage from "./BudgetUsage.vue";
 import useBudget from "@/composables/useBudget";
-import useTransactions from "@/composables/useTransactions";
 
 const { refreshData } = defineProps<{
   refreshData: boolean
@@ -63,18 +62,18 @@ watch(() => refreshData, async (newValue) => {
 });
 
 onMounted(async () => {
-  await fetchBudgetMonths(2);
-  console.log(budgetMonths.value);
-  
-  const monthsList = getMonths();
-  const available = `${monthsList[0].year}-${monthsList[0].month_num}`;
-  monthId.value = currentMonth.value;
-
   await checkExistenceOfBudget(2, currentMonth.value);
-  if (!currentBudgetExists.value &&monthId.value == currentMonth.value) {
+  if (!currentBudgetExists.value) {
+    monthId.value = currentMonth.value;
     displayCreateBudget.value = true;
     return;
   }
+
+  await fetchBudgetMonths(2);
+
+  const monthsList = getMonths();
+  const available = `${monthsList[0].year}-${monthsList[0].month_num}`;
+  monthId.value = currentMonth.value;
 
   emit("update:month", available);
 

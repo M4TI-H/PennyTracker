@@ -83,7 +83,8 @@ def fetch_summary(db: Session = Depends(get_db), budget_id: int = Query()):
     transactions,
     transactions.c.category == expense_category.c.id
   ).where(
-    budgets.c.id == budget_id
+    budgets.c.id == budget_id,
+    expense_category.c.isActive == 1
   ).group_by(
     expense_category.c.name
   )
@@ -117,22 +118,27 @@ def create_budget(budget_data: schemas.NewBudget, db: Session = Depends(get_db))
     expense_category,
   ).where(
     expense_category.c.user_id == budget_data.user_id,
-    expense_category.c.isActive == 1
   )
-  categories  = db.execute(query2).all()
+  categories = db.execute(query2).all()
 
-  if not categories:
-    db.commit()
-    return
+  num_of_categories = 0
 
-  num_of_categories = len(categories)
+  for category in categories:
+    if category.isActive == 1:
+      num_of_categories += 1
+
   share_amount = round(budget_data.amount / num_of_categories, 2)
 
   for category in categories:
+    if category.isActive == 1:
+      amount = share_amount
+    else:
+      amount = 0.0
+
     query = sa.insert(budget_shares).values(
       budget_id = budget_id,
       category_id = category.id,
-      amount = share_amount
+      amount = amount
     )
     db.execute(query)
 

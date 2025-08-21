@@ -48,7 +48,12 @@ const handleInput = (e: Event) => {
 const calculateInitialShares = () => {
   if (!budgetShares.value || budgetShares.value.length === 0) return;
 
-  const sharesAmounts = budgetShares.value.map(share => share.amount);
+  const activeShares = budgetShares.value.filter(share => {
+    const category = expenseCategories.value.find(c => c.id == share.category_id);
+    return category?.isActive === 1;
+  })
+
+  const sharesAmounts = activeShares.map(share => share.amount);
 
   const sliderValues: number[] = [];
   let temp = 0;
