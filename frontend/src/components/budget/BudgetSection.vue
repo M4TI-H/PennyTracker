@@ -4,20 +4,17 @@ import BudgetChartDetailed from './BudgetChartDetailed.vue';
 import getMonthName from "@/composables/getMonthName";
 import BudgetUsage from "./BudgetUsage.vue";
 import useBudget from "@/composables/useBudget";
-
-const { refreshData } = defineProps<{
-  refreshData: boolean
-}>();
+import { refreshBudgetData } from "@/stores/budgetData";
 
 const emit = defineEmits<{
   (e: "update:month", payload: string): void,
-  (e: "resetRefresh"): void
 }>();
 
 const { budgetData, budgetSummaryData, fetchBudget, fetchBudgetSummary, checkExistenceOfBudget, 
   currentBudgetExists, createNewBudget, budgetMonths, fetchBudgetMonths } = useBudget();
 const monthId = ref<string>("");
 const displayCreateBudget = ref<boolean>(false);
+const budgetExceedAmount = ref<number>(0);
 
 const currentMonth = computed(() => {
   const now = new Date();
@@ -37,6 +34,10 @@ function getMonths() {
   });
 }
 
+const assignBudgetExceed = (amount: number) => {
+  budgetExceedAmount.value = amount;
+}
+
 watch(monthId, async (newValue, oldValue) => {
   if (newValue === oldValue) return;
   
@@ -52,12 +53,14 @@ watch(monthId, async (newValue, oldValue) => {
   }
 });
 
-watch(() => refreshData, async (newValue) => {
+watch(() => refreshBudgetData.value.isRefreshed, async (newValue) => {
   if (newValue) {
     if (!budgetData.value?.id) return;
     await fetchBudgetSummary(budgetData.value.id);
+    refreshBudgetData.value.refreshNow(false);
 
-    emit("resetRefresh");
+    await fetchBudget(2, monthId.value);
+    await fetchBudgetSummary(budgetData.value.id);
   }
 });
 
@@ -96,9 +99,13 @@ onMounted(async () => {
         </option>
       </select>
     </span>
+
+    <p v-if="budgetExceedAmount">Budget has been exceeded by ${{ budgetExceedAmount }}!</p>
+
     <div v-if="budgetData?.id" class="w-[60%]">
-      <BudgetChartDetailed :budgetSummaryData="budgetSummaryData"/>
+      <BudgetChartDetailed   :key="budgetData?.id + '-' + JSON.stringify(budgetSummaryData)"  :budgetData="budgetData" :budgetSummaryData="budgetSummaryData" @budgetExceed="assignBudgetExceed"/>
     </div>
+
     <BudgetUsage v-if="budgetData?.id" :budgetSummaryData="budgetSummaryData"/>
     <p v-if="!budgetData?.id" class="text-neutral-400 font-semibold">No data</p>
     <div v-if="monthId === currentMonth && !currentBudgetExists">

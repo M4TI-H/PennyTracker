@@ -23,7 +23,7 @@ onMounted(async () => {
     bg-[#E9ECEF] rounded-xl shadow-xl">
     <p class="text-neutral-800 text-2xl font-semibold">Your budget in {{ getMonthName((new Date().getMonth() + 1).toString()) }}</p>
     <div class="w-[60%] h-full flex items-center justify-center">
-      <BudgetChartDetailed :budgetSummaryData="budgetSummaryData"/>
+      <BudgetChartDetailed v-if="budgetData" :budgetData="budgetData" :budgetSummaryData="budgetSummaryData"/>
     </div>
     <p class="text-neutral-800 text-lg font-semibold">Total budget: ${{ budgetData?.amount }}</p>
   </div>

@@ -2,12 +2,17 @@
 import { Pie } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from 'chart.js'
 import { computed } from 'vue';
-import type { BudgetSummary } from '@/types/budgets';
+import type { Budget, BudgetSummary } from '@/types/budgets';
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
-const { budgetSummaryData } = defineProps<{
-  budgetSummaryData: BudgetSummary[]
+const { budgetData, budgetSummaryData } = defineProps<{
+  budgetSummaryData: BudgetSummary[],
+  budgetData: Budget
+}>();
+
+const emit = defineEmits<{
+  (e: "budgetExceed", payload: number): void
 }>();
 
 const colors = ["#797d62", "#9b9b7a", "#d9ae94", "#f1dca7", "#ffcb69", "#d08c60", "#997b66", "#b5b8a3"];
@@ -19,20 +24,24 @@ const getData = computed(() => {
   const data: number[] = [];
   const backgroundColor: string[] = [];
 
-  let remainingBudget = 0;
+  let remainingBudget = budgetData.amount;
 
   budgetSummaryData.forEach((item, index) => {
     labels.push(`${item.name} spent`);
     data.push(item.amount_spent);
     backgroundColor.push(colors[index % colors.length]);
 
-    remainingBudget += Math.max(item.total_budget - item.amount_spent, 0);
-  })
+
+    remainingBudget -= item.amount_spent;
+  });
 
   if (remainingBudget > 0) {
     labels.push("Not spent yet");
     data.push(remainingBudget);
     backgroundColor.push("#E0E0E0");
+  }
+  else if (remainingBudget < 0) {
+    emit("budgetExceed", remainingBudget * -1);
   }
 
   return {

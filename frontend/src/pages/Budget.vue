@@ -4,13 +4,13 @@ import Navigation from "@/components/navigation/Navigation.vue";
 import useScreenSize from "@/composables/useScreenSize";
 import BudgetSection from "@/components/budget/BudgetSection.vue";
 import BudgetDistribution from "@/components/budget/BudgetDistribution.vue";
+import { refreshBudgetData } from "../stores/budgetData";
 
 const {screenWidth, screenHeight} = useScreenSize();
 
 const categoriesValues = ref<number[]>([]);
 const categoriesShares = ref<number[]>([]);
 const monthId = ref<string>("");
-const refreshData = ref<boolean>(false);
 
 </script>
 
@@ -18,12 +18,12 @@ const refreshData = ref<boolean>(false);
   <div class="fixed flex w-full h-full justify-around bg-[#DAD7CD] sm:py-16 ">
     <Navigation :screenWidth="screenWidth"/>
     <span class="w-[96rem] flex flex-row flex-wrap items-start gap-8">
-      <BudgetSection :categoriesValues="categoriesValues" :categoriesShares="categoriesShares" v-model:month="monthId" :refreshData="refreshData" @resetRefresh="refreshData = false"/>
+      <BudgetSection :categoriesValues="categoriesValues" :categoriesShares="categoriesShares" v-model:month="monthId"/>
       <BudgetDistribution 
         v-model:categoriesValues="categoriesValues" 
         v-model:categoriesShares="categoriesShares" 
         :monthId="monthId"
-        @refresh="refreshData = true"/>
+        @refresh="refreshBudgetData.refreshNow(true)"/>
     </span>
   </div>
 </template>
